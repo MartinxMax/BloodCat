@@ -7,3 +7,4 @@ rtsp://admin:123456@121.202.202.91:554/1
 rtsp://admin:123456@218.6.125.63:554/live.sdp
 rtsp://admin:123456@27.159.82.67:12527/live.sdp
 rtsp://admin:123456@27.159.83.125:12527/live.sdp
+rtsp://admin:admin@192.168.0.247:8554/Streaming/Channels/101

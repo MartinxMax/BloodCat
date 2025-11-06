@@ -52,7 +52,10 @@ def main():
     parser.add_argument('--city', default='', type=str, help='City')
     parser.add_argument('--region', default='', type=str, help='Area')
     parser.add_argument('--key',  default='', type=str, help='Fofa API key')
-    parser.add_argument('--ip', default='', type=str, help='IP:PORT')
+    parser.add_argument('--ip', default='', type=str, help='IP or IP:PORT (if no port, will scan common RTSP ports)')
+    parser.add_argument('--full-scan', action='store_true', help='Scan all ports first, then check for RTSP (slower but more thorough)')
+    parser.add_argument('--port-range', default='', type=str, help='Port range for full scan (e.g., "1-10000" or "1-65535"), default: 1-10000')
+    parser.add_argument('--threads', default=50, type=int, help='Number of parallel threads for brute forcing (default: 50, increase for faster scanning)')
     args = parser.parse_args()
     cam = Execute_Cam()
     if not args.ip:
@@ -68,9 +71,26 @@ def main():
             for i in info:
                 ip = i.split(':')[0]
                 port = int(i.split(':')[-1])
-                cam.run(ip,port)
+                cam.run(ip, port)
     else:
-        cam.run(args.ip.split(':')[0],int(args.ip.split(':')[-1]))
+        # Check if port is specified
+        if ':' in args.ip:
+            ip = args.ip.split(':')[0]
+            port = int(args.ip.split(':')[-1])
+            cam.run(ip, port, max_workers=args.threads)
+        else:
+            # Only IP provided, scan for ports
+            port_range = None
+            if args.port_range:
+                try:
+                    start, end = args.port_range.split('-')
+                    port_range = (int(start), int(end))
+                    print(f"[*] Using custom port range: {start}-{end}")
+                except:
+                    print("[!] Invalid port range format. Use format: 1-10000")
+                    return
+            
+            cam.run(args.ip, None, full_scan=args.full_scan, port_range=port_range, max_workers=args.threads)
 
 
 if __name__ == '__main__':
