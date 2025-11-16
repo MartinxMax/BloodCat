@@ -10,7 +10,7 @@ A tool for collecting publicly exposed network cameras, with support for specify
 
 ```bash
 $ sudo apt update && sudo apt install ffmpeg
-$ pip install -r requirements.txt
+$ pip install tqdm requests
 ```
 
 ---
@@ -65,5 +65,6 @@ $ ./play.sh
 ```
 
 ![alt text](./pic/image-4.png)
+
 
  
