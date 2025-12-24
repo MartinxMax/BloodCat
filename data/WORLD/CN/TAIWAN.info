@@ -1,0 +1,15 @@
+rtsp://admin:123456@180.218.97.3:554/12
+rtsp://admin:123456@61.224.59.186:554/h264
+rtsp://admin:123456@220.135.74.218:554/ch0_0.h264
+rtsp://admin:123456@60.250.96.32:554/live.sdp
+rtsp://admin:123456@106.105.48.118:554/live/ch00_0
+rtsp://admin:123456@59.126.201.36:554/h264Preview_01_sub
+rtsp://admin:123456@59.126.128.239:554/0
+rtsp://admin:123456@49.159.229.29:554/videoMain
+rtsp://admin:123456@122.117.20.247:554/live.sdp
+rtsp://admin:123456@220.135.74.43:554/live.sdp
+rtsp://admin:1234@110.25.102.210:554/1
+rtsp://admin:password@220.135.62.188:554/1
+rtsp://admin:123456@49.158.144.121:554/live.sdp
+rtsp://admin:123456@210.61.50.206:554/live.sdp
+rtsp://admin:admin@106.104.135.25:554/stream1
