@@ -372,7 +372,6 @@ class CamLib():
                 log.info(f"Path [{path}] does not exist",f"{path}")
             else:
                 log.warning(f"Target returned an unexpected response: [{code}] , please try again later...",f"{path}")
-                return 0
             time.sleep(0.2)
         if paths_no_auth:
             rtsp_url = f"rtsp://{self.default_user}:{self.default_password}@{ip}:{port}{paths_no_auth[0]}"
@@ -509,3 +508,4 @@ Network Range: {data['network']}
                     "chmod +x ./exploitdb/searchsploit"
                 )
         return data
+
