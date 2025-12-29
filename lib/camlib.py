@@ -335,8 +335,8 @@ class CamLib():
 
     def run(self, ip: str, port=554,password=''):
         if password:
-            self.PASSWORD = list(password)
-            log.info(f"Currently entering password spraying : Try Password => [{password}]")
+            self.PASSWORD = [password]
+            log.info(f"Currently entering password spraying : Try Password => [{password}]",f"{password}")
         log.info(f"Current Detection [{ip}:{port}]",f"{ip}:{port}")
         ip_data = self.show_location(ip)
         resp = self.options_no_auth(ip, port)
@@ -402,6 +402,7 @@ class CamLib():
                     sys.stdout.flush()
                 time.sleep(0.2)
         else:
+            print()
             log.warning("No valid credentials found")
 
     def show_location(self,ip:str):
