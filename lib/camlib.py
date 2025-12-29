@@ -339,6 +339,8 @@ class CamLib():
             log.info(f"Currently entering password spraying : Try Password => [{password}]",f"{password}")
         log.info(f"Current Detection [{ip}:{port}]",f"{ip}:{port}")
         ip_data = self.show_location(ip)
+        if not ip_data:
+            return 0
         resp = self.options_no_auth(ip, port)
         code = self.status(resp)
         if code is None:
@@ -404,11 +406,27 @@ class CamLib():
         else:
             print()
             log.warning("No valid credentials found")
-
+    
     def show_location(self,ip:str):
-        location_ = Location()
-        data = location_.get(ip)   
-        show = f'''\033[33m==========================================
+        def check_ip_type(ip: str) -> int:
+            ipv4_pattern = re.compile(r'^((25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)$')
+            private_pattern = re.compile(r'^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)')
+            if not ipv4_pattern.match(ip):
+                return 3  
+            elif private_pattern.match(ip):
+                return 2 
+            else:
+                return 1
+        code = check_ip_type(ip)
+        if code == 2:
+            data = {
+                'LAN':ip
+            }
+            return data
+        elif code == 1:
+            location_ = Location()
+            data = location_.get(ip)   
+            show = f'''\033[33m==========================================
 Country: {data['country']}
 City: {data['city']}
 Lat&Lng: {data['lalo']}
@@ -416,9 +434,11 @@ ASN: {data['asn']}
 ISP/Org: {data['sys_org']}
 Network Range: {data['network']}
 ===========================================\033[0m'''
-        print(show)
-        location_.close()
-        return data
+            print(show)
+            location_.close()
+            return data
+        return False
+        
 
     def send(self,req, ip, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
