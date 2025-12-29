@@ -1,0 +1,5 @@
+# linux/x86 xor-encoded Connect Back Shellcode 371 bytes
+
+https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/13366.tar.gz (black-RXenc-con-back.tar.gz)
+
+# milw0rm.com [2006-04-18]

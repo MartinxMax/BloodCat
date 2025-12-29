@@ -13,6 +13,8 @@ import argparse
 from lib.camlib import * 
 from lib.fofaget import * 
 from lib.log_cat import * 
+
+
 log = LogCat()
 
 LOGO = "\033[31m"+r'''
@@ -45,8 +47,8 @@ qp         t\io,_           `~"TOOggQV""""        _,dg,_ =PIQHib.
                                _        _,p"     |    |   `\`;    |    |
                                 "boo,._dP"       `\_  `\    `\|   `\   ;
                                  `"7tY~'            `\  `\    `|_   |
-                                                      `~\  |'''+'\033[0m'+'\033[102m'+'''
-[Maptnh@S-H4CK13]      [Blood Cat V1.5]    [https://github.com/MartinxMax]'''+'\033[0m'
+                                                      `~\  |'''+'\033[0m'+'\033[35m'+'''
+[Maptnh@S-H4CK13]      [Blood Cat V2.0]    [https://github.com/MartinxMax]'''+'\033[0m'
 
     
 def read_ips(filename: str):
@@ -85,7 +87,7 @@ def main():
     parser.add_argument('--ips', default='', type=str, help='Targets list file (each line: IP or IP:PORT)')
     parser.add_argument('--password', default='', type=str, help='Password Spraying')
     args = parser.parse_args()
-    cam = Execute_Cam()
+    cam = CamLib()
     # Ips Module
     if args.ips:
       log.info(f"Loaded ips file: [{args.ips}]")
@@ -97,7 +99,7 @@ def main():
               port = int(ip_.split(':')[-1]) if ':' in ip_ else 554
               cam.run(ip, port,args.password)
           except Exception as e:
-              log.error(f"[!] Skip... {ip_port} ip")
+              log.error("Invalid format")
       else:
         sys.exit(0)
     # Fofa Module
@@ -115,6 +117,8 @@ def main():
                 port = int(i.split(':')[-1])
                 cam.run(ip,port,args.password)
     elif args.ip:
+        if not (':' in args.ip):
+            log.error("Invalid format")
         cam.run(args.ip.split(':')[0],int(args.ip.split(':')[-1]),args.password)
     else:
         parser.print_help()

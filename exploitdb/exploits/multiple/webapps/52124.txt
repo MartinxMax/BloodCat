@@ -1,0 +1,10 @@
+# Exploit Title: Next.js Middleware Bypass Vulnerability (CVE-2025-29927)
+# Date: 2025-03-26
+# Exploit Author: kOaDT
+# Vendor Homepage: https://nextjs.org/
+# Software Link: https://github.com/vercel/next.js
+# Version: 13.0.0 - 13.5.8 / 14.0.0 - 14.2.24 / 15.0.0 - 15.2.2 / 11.1.4 - 12.3.4
+# Tested on: Ubuntu 22.04.5 LTS
+# CVE: CVE-2025-29927
+# PoC: https://raw.githubusercontent.com/kOaDT/poc-cve-2025-29927/refs/heads/main/exploit.js
+# POC GitHub Repository: https://github.com/kOaDT/poc-cve-2025-29927/tree/main

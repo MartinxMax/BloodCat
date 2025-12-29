@@ -1,0 +1,117 @@
+# Titles: Microsoft Edge (Chromium-based) 135.0.7049.114/.115 - Information Disclosure
+# Date: 08/02/2025
+# Vendor: Microsoft
+# Software: https://www.microsoft.com/bg-bg/edge/download?form=MA13FJ
+# Reference:
+https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-49741
+
+## Description
+
+# CVE-2025-49741 Exploit Server
+**Author:** nu11secur1ty (2025)
+
+## Overview
+This Python script simulates an exploit targeting a Microsoft Edge
+(Chromium-based) information disclosure vulnerability identified as
+**CVE-2025-49741**.
+
+It runs two HTTP servers concurrently:
+
+- **Malicious Server (port 8080):** Serves a crafted page that collects
+victim headers and simulates an internal request to the exfiltration
+endpoint.
+- **Exfiltration Endpoint (port 1337):** Receives simulated internal
+requests and logs headers for demonstration purposes.
+
+## Components
+
+### MaliciousRequestHandler
+- Handles HTTP GET requests on port 8080.
+- Logs the victim's IP address, User-Agent, and all request headers.
+- Sends a crafted HTTP GET request to the exfiltration server on port 1337
+with spoofed headers to simulate internal communication.
+- Responds with an HTML page indicating that the victim's information is
+being sent.
+
+### ExfilEndpoint
+- Handles HTTP GET requests on port 1337.
+- Logs all headers received, simulating data exfiltration.
+- Responds with a success message.
+
+## Features
+- Automatically detects the local IP address to bind the servers.
+- Graceful shutdown on Ctrl+C (SIGINT), ensuring both servers close cleanly.
+- Uses `ThreadingTCPServer` for responsive handling of multiple connections.
+- Clear console logging for monitoring victim connections and exfiltration
+simulation.
+
+## Requirements
+- Python 3.6+
+- `requests` library (`pip install requests`)
+
+## Usage
+1. Run the script:
+   ```bash
+   python CVE-2025-49741.py
+   ```
+2. The script will print the URLs where both servers are running (e.g.,
+`http://192.168.x.x:8080` and `http://192.168.x.x:1337`).
+3. Press Ctrl+C to stop both servers gracefully.
+
+## Notes
+- This tool is for educational and research purposes only.
+- Do NOT use against systems you do not own or have explicit permission to
+test.
+- The exploit logic is simulated and does NOT perform real exploitation but
+mimics the vulnerability for demonstration.
+
+## Disclaimer
+Use responsibly. The author is not responsible for any misuse of this
+software.
+
+---
+**nu11secur1ty 2025**
+
+# Video:
+[href](https://www.youtube.com/watch?v=cWClT0Hvqac)
+
+# Source:
+[href](
+https://github.com/nu11secur1ty/CVE-mitre/tree/main/2025/CVE-2025-49741)
+
+
+# Buy me a coffee if you are not ashamed:
+[href](https://www.paypal.com/donate/?hosted_button_id=ZPQZT5XMC5RFY)
+
+
+# Source download
+[href](
+https://nu11secur1ty.github.io/DownGit/#/home?url=https://github.com/nu11secur1ty/CVE-mitre/tree/main/2025/CVE-2025-49741
+)
+
+# Time spent:
+01:35:00
+
+
+--
+System Administrator - Infrastructure Engineer
+Penetration Testing Engineer
+Exploit developer at https://packetstormsecurity.com/
+https://cve.mitre.org/index.html
+https://cxsecurity.com/ and https://www.exploit-db.com/
+0day Exploit DataBase https://0day.today/
+home page: https://www.nu11secur1ty.com/
+hiPEnIMR0v7QCo/+SEH9gBclAAYWGnPoBIQ75sCj60E=
+                          nu11secur1ty <http://nu11secur1ty.com/>
+
+--
+
+System Administrator - Infrastructure Engineer
+Penetration Testing Engineer
+Exploit developer at https://packetstorm.news/
+https://cve.mitre.org/index.html
+https://cxsecurity.com/ and https://www.exploit-db.com/
+0day Exploit DataBase https://0day.today/
+home page: https://www.nu11secur1ty.com/
+hiPEnIMR0v7QCo/+SEH9gBclAAYWGnPoBIQ75sCj60E=
+                          nu11secur1ty <http://nu11secur1ty.com/>

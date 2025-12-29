@@ -1,0 +1,14 @@
+# Exploit Title: CMSimple 5.15 - Remote Command Execution
+# Date: 04/28/2024
+# Exploit Author: Ahmet Ümit BAYRAM
+# Vendor Homepage: https://www.cmsimple.org
+# Software Link: https://www.cmsimple.org/downloads_cmsimple50/CMSimple_5-15.zip
+# Version: latest
+# Tested on: MacOS
+
+# Log in to SimpleCMS.
+# Go to Settings > CMS
+# Append ",php" to the end of the Extensions_userfiles field and save it.
+# Navigate to Files > Media
+# Select and upload shell.php
+# Your shell is ready: https://{url}/userfiles/media/shell.php

