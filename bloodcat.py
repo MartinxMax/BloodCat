@@ -14,7 +14,6 @@ from lib.camlib import *
 from lib.fofaget import * 
 from lib.log_cat import * 
 
-
 log = LogCat()
 
 LOGO = "\033[31m"+r'''
@@ -48,7 +47,7 @@ qp         t\io,_           `~"TOOggQV""""        _,dg,_ =PIQHib.
                                 "boo,._dP"       `\_  `\    `\|   `\   ;
                                  `"7tY~'            `\  `\    `|_   |
                                                       `~\  |'''+'\033[0m'+'\033[35m'+'''
-[Maptnh@S-H4CK13]      [Blood Cat V2.0]    [https://github.com/MartinxMax]'''+'\033[0m'
+[Maptnh@S-H4CK13]      [Blood Cat V2.2]    [https://github.com/MartinxMax]'''+'\033[0m'
 
     
 def read_ips(filename: str):
@@ -93,7 +92,8 @@ def main():
       log.info(f"Loaded ips file: [{args.ips}]")
       ips_list = read_ips(args.ips)
       if ips_list:  
-        for ip_ in ips_list:
+        real = cam.filter_ips(ips_list)
+        for ip_ in real:
           try:
               ip = ip_.split(':')[0]
               port = int(ip_.split(':')[-1]) if ':' in ip_ else 554
@@ -112,7 +112,8 @@ def main():
             region=args.region
         )
         if info:
-            for i in info:
+            real = cam.filter_ips(info)
+            for i in real:
                 ip = i.split(':')[0]
                 port = int(i.split(':')[-1])
                 cam.run(ip,port,args.password)

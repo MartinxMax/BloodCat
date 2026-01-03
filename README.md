@@ -4,6 +4,21 @@
 
 A tool for hacking into publicly exposed network cameras, with support for specifying country and region
 
+
+```
+Version 2.2
+[+] Modified storage structure
+[+] Remote retrieval of encrypted data from GitHub to ensure user anonymity and security
+[+] Added BloodCat Map
+[+] Added search functionality in BloodCat Map
+[+] Users can click coordinates on the BloodCat Map to view live camera streams in real time
+[+] Added honeypot host cleanup mechanism in BloodCat, enabling precise target identification
+```
+
+![alt text](./pic/map-image-1.png)
+
+![alt text](./pic/map-image.png)
+
 ```
 Version 2.0
 [-] Remove tqdm library
@@ -41,9 +56,11 @@ Version 1.3
 # Install Dependencies
 
 ```bash
-$ sudo apt update && sudo apt install ffmpeg
+$ sudo apt update && sudo apt install ffmpeg python3-pyqt5.qtwebengine
 $ pip install geoip2 requests
-```
+``` 
+
+If you are using the Windows operating system, please download `https://github.com/MartinxMax/BloodCat/releases/download/play/ffplay.exe` and move the downloaded .exe file into the `./lib/` directory.
 
 ---
 
@@ -99,14 +116,13 @@ All discovered results will be saved to:
 
 ---
 
-# Launch Viewer
+# Blood-Cat-Map & Launch Viewer
 
 ```bash
-$ ./play.sh
+$ python3 bloodcat_map.py
 ```
-
-![alt text](./pic/image-4.png)
-
+ 
+![alt text](./pic/map-image-1.png)
 
  
 

