@@ -479,7 +479,6 @@ class CamLib():
                     return 1
                 else:
                     sys.stdout.write(f"\r☕ ➣ Attempting credentials : [{u}:{p}]\x1b[K")
-                    return 1 # ！！！！！！！！！！！！！！！！！！！！！！！！
                     sys.stdout.flush()
                 time.sleep(0.2)
         else:
@@ -589,4 +588,5 @@ Network Range: {data['network']}
                     "chmod +x ./exploitdb/searchsploit"
                 )
         return data
+
 
