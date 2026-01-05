@@ -28,8 +28,10 @@ Version 2.3
 # Install Dependencies
 
 ```bash
-$ sudo apt update && sudo apt install ffmpeg python3-pyqt5.qtwebengine
-$ pip install geoip2 requests
+$ sudo apt update && sudo apt install ffmpeg python3-pyqt5.qtwebengine -y
+$ cd BloodCat;python3 -m venv bloodcat
+$ source ./bloodcat/bin/activate
+(bloodcat)$ pip install geoip2 requests pycryptodome PyQt5 PyQtWebEngine
 ``` 
 
 If you are using the Windows operating system, please download `https://github.com/MartinxMax/BloodCat/releases/download/play/ffplay.exe` and move the downloaded .exe file into the `./lib/` directory.
@@ -97,4 +99,5 @@ $ python3 bloodcat_map.py
 ![alt text](./pic/map-image-1.png)
 
  
+
 
