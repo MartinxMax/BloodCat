@@ -4,100 +4,151 @@
 
 A tool for hacking into publicly exposed network cameras, with support for specifying country and region.
 
-```
-Version 2.3
-[+] BloodCat-Map: Multi-color icons to display data from different APIs respectively
-[+] BloodCat-Map: Team-shared data API – you can share your data with other members via this feature
-[+] BloodCat-Map: Pointer snapping – the mouse pointer will automatically snap when approaching a target
-[+] BloodCat-Map: Team LAN chat – I adopted UDP broadcast encrypted communication, which undoubtedly reduces a lot of configuration work...
-```
-
-![alt text](./pic/v23.png)
-
-![alt text](./pic/map-image-1.png)
-
-![alt text](./pic/map-image.png)
- 
-![alt text](./pic/v2.png)
-
-![alt text](./pic/TEST-3.png)
-
+![alt text](./pic/main.png)
 
 ---
 
 # Install Dependencies
 
+Disk space requirement: `Available space > 600 MB`
+
 ```bash
 $ sudo apt update && sudo apt install ffmpeg python3-pyqt5.qtwebengine -y
-$ cd BloodCat;python3 -m venv bloodcat
+$ git clone https://github.com/MartinxMax/BloodCat.git
+$ cd BloodCat && python3 -m venv bloodcat
 $ source ./bloodcat/bin/activate
-(bloodcat)$ pip install geoip2 requests pycryptodome PyQt5 PyQtWebEngine
+(bloodcat)$ python -m pip install --upgrade pip
+(bloodcat)$ pip install -r requirements.txt
 ``` 
 
 If you are using the Windows operating system, please download `https://github.com/MartinxMax/BloodCat/releases/download/play/ffplay.exe` and move the downloaded .exe file into the `./lib/` directory.
 
 ---
 
-# Usage
+# BloodCat Usage
 
 ```bash
-$ python3 bloodcat.py -h
+(bloodcat)$ python3 bloodcat.py -h
 ```
 
 ![alt text](./pic/image.png)
 
 ---
 
-## Bruteforce for  IP list
-
-```bash
-$ python3 bloodcat.py --ips target.txt
-```
-
-![alt text](./pic/TEST-1.png)
-
 ## Bruteforce a specific camera IP
 
 ```bash
-$ python3 bloodcat.py --ip "80.191.192.230:554"
+(bloodcat)$ python3 bloodcat.py --ip "188.134.80.244:554"
 ```
 
 ![alt text](./pic/image-1.png)
 
-![alt text](./pic/image-5.png)
-
----
-
-## Bruteforce camera IPs in a specific country/region (via FoFa)
-
-```bash
-$ python3 bloodcat.py --country CN --region HK --key <FOFA-API-KEY>
-```
-
-![alt text](./pic/image-2.png)
-
----
-
-# File Path
-
-All discovered results will be saved to:
-
-```
-./data/ipcam.info
-```
+`(bloodcat)$ python3 bloodcat_map.py`
 
 ![alt text](./pic/image-3.png)
 
 ---
 
-# Blood-Cat-Map & Launch Viewer
+## Bruteforce for  IP list
+
+```bash
+(bloodcat)$ python3 bloodcat.py --ips target.txt
+```
+
+![alt text](./pic/image-4.png)
+
+`(bloodcat)$ python3 bloodcat_map.py`
+
+![alt text](./pic/image-5.png)
+
+
+## Bruteforce camera IPs in a specific country/region (via FoFa)
+
+```bash
+(bloodcat)$ python3 bloodcat.py --country CN --region HK --key <FOFA-API-KEY>
+```
+
+![alt text](./pic/image-14.png)
+
+---
+
+## Merge .bc Data
+
+Place all `.bc` files that need to be merged into the `./data/` directory.
+
+![alt text](./pic/image-12.png)
+
+`(bloodcat)$ python3 bloodcat.py --merge`
+
+![alt text](./pic/image-13.png)
+
+After execution,
+`./data/20260108_171450.bc` will be a deduplicated and merged .bc file.
+
+Replace the original global.bc file, then right-click Reload in BloodCat_Map:
+
+```bash
+(bloodcat)$ mv ./data/20260108_171450.bc ./data/global.bc
+```
+
+![alt text](./pic/image-15.png)
+
+---
+
+# Blood-Cat-Map Usage
+
 
 ```bash
 $ python3 bloodcat_map.py
 ```
- 
-![alt text](./pic/map-image-1.png)
 
  
+![alt text](./pic/image-2.png)
+
+## Remote API Data
+
+By entering a remote data URL, you can load external datasets.
+
+You may test using the official BloodCat database:
+
+`https://raw.githubusercontent.com/MartinxMax/db/refs/heads/main/blood_cat/global.bc`
+
+![alt text](./pic/image-6.png)
 
 
+You can also copy API database links from other BloodCat-Map instances:
+
+![alt text](./pic/image-10.png)
+
+The target data will be loaded and displayed on the map.
+If you need to remove an entry, click the X on the right side.
+Remote-loaded raw data is not automatically saved locally,
+but the remote URL will be written into the configuration file.
+
+![alt text](./pic/image-11.png)
+
+## IP Tracking
+
+
+You can enter keywords here to perform fuzzy matching on targets.
+This allows you to quickly lock and track specific targets on the map.
+
+![alt text](./pic/image-7.png)
+
+## Team Collaboration
+
+To use the chat feature, all team members must:
+· Be on the same local network (LAN)
+· Run BloodCat-Map simultaneously
+
+The good news is:
+· No need to enter peer IP addresses
+· No need to worry about sniffing attacks
+· Chat packets are encrypted
+
+TEAM A:
+![alt text](./pic/image-8.png)
+TEAM B:
+![alt text](./pic/image-9.png)
+
+---

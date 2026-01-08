@@ -47,7 +47,7 @@ qp         t\io,_           `~"TOOggQV""""        _,dg,_ =PIQHib.
                                 "boo,._dP"       `\_  `\    `\|   `\   ;
                                  `"7tY~'            `\  `\    `|_   |
                                                       `~\  |'''+'\033[0m'+'\033[35m'+'''
-[Maptnh@S-H4CK13]      [Blood Cat V2.3]    [https://github.com/MartinxMax]'''+'\033[0m'
+[Maptnh@S-H4CK13]      [Blood Cat V2.3.2]    [https://github.com/MartinxMax]'''+'\033[0m'
 
     
 def read_ips(filename: str):
@@ -85,45 +85,62 @@ def main():
     parser.add_argument('--ip', default='', type=str, help='IP:PORT')
     parser.add_argument('--ips', default='', type=str, help='Targets list file (each line: IP or IP:PORT)')
     parser.add_argument('--password', default='', type=str, help='Password Spraying')
+    parser.add_argument('--merge', action='store_true', help='Merge and update all data in ./data into a single BC file')
     args = parser.parse_args()
     cam = CamLib()
-    # Ips Module
-    if args.ips:
-      log.info(f"Loaded ips file: [{args.ips}]")
-      ips_list = read_ips(args.ips)
-      if ips_list:  
-        real = cam.filter_ips(ips_list)
-        for ip_ in real:
-          try:
-              ip = ip_.split(':')[0]
-              port = int(ip_.split(':')[-1]) if ':' in ip_ else 554
-              cam.run(ip, port,args.password)
-          except Exception as e:
-              log.error("Invalid format")
-      else:
-        sys.exit(0)
-    # Fofa Module
-    elif args.key:
-        fofa = Fofa()
-        info = fofa.query(
-            key=args.key,
-            city=args.city,
-            country=args.country,
-            region=args.region
-        )
-        if info:
-            real = cam.filter_ips(info)
-            for i in real:
-                ip = i.split(':')[0]
-                port = int(i.split(':')[-1])
-                cam.run(ip,port,args.password)
-    elif args.ip:
-        if not (':' in args.ip):
-            log.error("Invalid format")
-            sys.exit(0)
-        cam.run(args.ip.split(':')[0],int(args.ip.split(':')[-1]),args.password)
+    if args.merge:
+        cam.merge_all_bc()
     else:
-        parser.print_help()
+        # ---------- IPS Module ----------
+        if args.ips:
+            log.info(f"Loaded ips file: [{args.ips}]")
+            ips_list = read_ips(args.ips)
+
+            if not ips_list:
+                sys.exit(0)
+
+            real = cam.filter_ips(ips_list)
+            for ip_ in real:
+                try:
+                    ip = ip_.split(':')[0]
+                    port = int(ip_.split(':')[-1]) if ':' in ip_ else 554
+                    cam.run(ip, port, args.password)
+                except Exception:
+                    log.error("Invalid format")
+
+        # ---------- FOFA Module ----------
+        elif args.key:
+            fofa = Fofa()
+            info = fofa.query(
+                key=args.key,
+                city=args.city,
+                country=args.country,
+                region=args.region
+            )
+
+            if info:
+                real = cam.filter_ips(info)
+                for i in real:
+                    ip = i.split(':')[0]
+                    port = int(i.split(':')[-1])
+                    cam.run(ip, port, args.password)
+
+        # ---------- Single IP Module ----------
+        elif args.ip:
+            if ':' not in args.ip:
+                log.error("Invalid format")
+                sys.exit(0)
+
+            cam.run(
+                args.ip.split(':')[0],
+                int(args.ip.split(':')[-1]),
+                args.password
+            )
+
+        # ---------- Help ----------
+        else:
+            parser.print_help()
+
 
 if __name__ == '__main__':
     main() 
