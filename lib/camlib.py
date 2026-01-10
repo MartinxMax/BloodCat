@@ -340,19 +340,30 @@ class CamLib():
             'none', 'None', 'NONE'
         ]
 
-    def filter_ips(self,ips):
+    def filter_ips(self, ips):
         log.info("Filtering cameras...")
         alive = []
+        def parse_ip_port(ip_str):
+            if ':' in ip_str:
+                ip, port = ip_str.split(':', 1)
+                return ip, int(port)
+            return ip_str, 554
+
         with ThreadPoolExecutor(max_workers=5) as pool:
-            future_to_ip = {pool.submit(self.options_no_auth, ip,554): ip for ip in ips}
+            future_to_ip = {}
+            for ip_str in ips:
+                ip, port = parse_ip_port(ip_str)
+                future = pool.submit(self.options_no_auth, ip, port)
+                future_to_ip[future] = ip_str   
+
             for future in as_completed(future_to_ip):
-                ip = future_to_ip[future]
+                ip_str = future_to_ip[future]
                 res = future.result()
                 if res:
-                    log.info(f"Camera detected: [\033[33m{ip}\033[0m]")
-                    alive.append(ip)
-        return alive
+                    log.info(f"Camera detected: [\033[33m{ip_str}\033[0m]")
+                    alive.append(ip_str)
 
+        return alive
 
 
     def aes_encrypt(self,data: str) -> bytes:
@@ -678,6 +689,7 @@ Network Range: {data['network']}
         return base64.b64encode(f"{user}:{pwd}".encode()).decode()
     
     def options_no_auth(self, ip, port):
+ 
         ua = self.random_ua()
         req = (
             f"OPTIONS rtsp://{ip}:{port}/ RTSP/1.0\r\n"
