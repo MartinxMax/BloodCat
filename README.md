@@ -111,7 +111,7 @@ The good news is that you don’t need to install most of BloodCat’s core depe
 
 `$ sudo apt install nmap ffmpeg -y`
 
-`$ wget https://raw.githubusercontent.com/MartinxMax/BloodCat/refs/heads/main/bloodcat.nse -o bloodcat.nse`
+`$ wget https://raw.githubusercontent.com/MartinxMax/BloodCat/refs/heads/main/bloodcat.nse -O bloodcat.nse`
 
 `$ nmap --script ./bloodcat.nse -Pn -p 554 X.X.X.X`
 
@@ -351,6 +351,7 @@ $ python3 bloodcat_map_lan.py
 ![alt text](./pic/bloodcat_map_lan-2.png)
 
 ---
+
 
 
 
