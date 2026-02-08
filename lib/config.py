@@ -43,8 +43,20 @@ cve_2025_7503_config = {
  
     }
 }
-
+CVE_2016_20016_config = {
+    "CVE": "CVE-2016-20016",
+    "dev": "JAWS-DVR",  
+    "descript": "MVPower and certain DVR devices identified by the JAWS/1.0 banner are affected by an unauthenticated remote command execution (RCE) vulnerability.",
+    "module": "modules.CVE_2016_20016",  
+    "parameter": {
+        "url": {
+            "var": '',
+            "descript": "url"
+        }
+    }
+}
 all_modules = [
     cve_2017_7921_config,
-    cve_2025_7503_config
+    cve_2025_7503_config,
+    CVE_2016_20016_config
 ]
