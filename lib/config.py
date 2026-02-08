@@ -46,7 +46,7 @@ cve_2025_7503_config = {
 CVE_2016_20016_config = {
     "CVE": "CVE-2016-20016",
     "dev": "JAWS-DVR",  
-    "descript": "MVPower and certain DVR devices identified by the JAWS/1.0 banner are affected by an unauthenticated remote command execution (RCE) vulnerability.",
+    "descript": "MVPower and certain DVR devices identified by the JAWS/1.0 banner are affected by an unauthenticated remote command execution (RCE) vulnerability",
     "module": "modules.CVE_2016_20016",  
     "parameter": {
         "url": {
@@ -55,8 +55,22 @@ CVE_2016_20016_config = {
         }
     }
 }
+CVE_2016_5674_config = {
+    "CVE": "CVE-2016-5674",
+    "dev": "NUUO-NVR",  
+    "descript": "Remote attackers execute arbitrary PHP code via log parameter",
+    "module": "modules.CVE_2016_5674",  
+    "parameter": {
+        "url": {
+            "var": '',
+            "descript": "url"
+        }
+    }
+}
+
 all_modules = [
     cve_2017_7921_config,
     cve_2025_7503_config,
-    CVE_2016_20016_config
+    CVE_2016_20016_config,
+    CVE_2016_5674_config
 ]
