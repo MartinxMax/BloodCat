@@ -1,7 +1,7 @@
 
 # INFO
 
-⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 🐈‍⬛ Have you ever wondered whether there are publicly accessible cameras watching the streets you walk every day?
 Once you become aware of their existence, you may realize how close and real online exposure actually is.
@@ -18,7 +18,7 @@ To ensure user anonymity and security, automatic updates are intentionally disab
 💻 BloodCat is compatible with Windows, Linux, and macOS.
 On Android, GUI-related components may not function properly; however, the core functionality remains operational.
 
-⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 # Blood-Cat
 
@@ -494,5 +494,6 @@ $ python3 bloodcat_map_lan.py
 
 
  
+
 
 
