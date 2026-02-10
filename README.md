@@ -1,4 +1,24 @@
- 
+
+# INFO
+
+⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
+
+🐈‍⬛ Have you ever wondered whether there are publicly accessible cameras watching the streets you walk every day?
+Once you become aware of their existence, you may realize how close and real online exposure actually is.
+
+🤦‍♂️ Are you still struggling with the lack of practical tools for exploiting IP camera vulnerabilities?
+
+🌏 BloodCat officially provides over 300+ publicly accessible IP camera examples worldwide.
+
+🎥 A comprehensive IP Camera penetration testing toolkit, featuring default credential enumeration, CVE exploitation, and additional capabilities — with support for collaborative team usage.
+
+🛡️ BloodCat does not collect any identity-related information.
+To ensure user anonymity and security, automatic updates are intentionally disabled to reduce the risk of supply-chain compromise.
+
+💻 BloodCat is compatible with Windows, Linux, and macOS.
+On Android, GUI-related components may not function properly; however, the core functionality remains operational.
+
+⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘⫘
 
 # Blood-Cat
 
@@ -8,6 +28,11 @@
 A tool for hacking into publicly exposed network cameras, with support for specifying country and region.
 
 PS: This tool supports weak‑credential and brute‑force testing against most mainstream network camera models. However, some devices with enhanced security mechanisms deliberately obfuscate or conceal their fingerprinting characteristics, which means the tool is not universally effective. Future updates will progressively introduce additional camera‑related CVE‑based vulnerability detection plugins, aiming to improve success rates while reducing unnecessary probing traffic.
+
+---
+
+
+ 
 
  
  
@@ -325,6 +350,8 @@ You may test using the official BloodCat database:
 
 `https://raw.githubusercontent.com/MartinxMax/db/refs/heads/main/blood_cat/global.bc`
 
+PS: For your own anonymity, do not import or use untrusted BloodCat API endpoints, as they may collect your IP address (unless you are using a proxy).
+
 ![alt text](./pic/image-6.png)
 
 
@@ -467,4 +494,5 @@ $ python3 bloodcat_map_lan.py
 
 
  
+
 
