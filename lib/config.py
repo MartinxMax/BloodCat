@@ -13,11 +13,11 @@ cve_2017_7921_config = {
             "descript": "Thread count"
         },
         "output_type": {
-            "var": "json",
+            "var": "csv",
             "descript": "json / csv"
         },
         "output_path": {
-            "var": "./result.json",
+            "var": "./result.csv",
             "descript": "Output file"
         }
     }
