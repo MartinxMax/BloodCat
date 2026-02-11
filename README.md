@@ -350,13 +350,13 @@ drwxrwxrwt    6 root     root  	         120 Jan  1  1970 var
 
 ## Remote API Data
 
-By entering a remote data URL, you can load external datasets.
+By entering a remote data URL(BloodCat Map API), you can load external datasets.
 
 You may test using the official BloodCat database:
 
 `https://raw.githubusercontent.com/MartinxMax/db/refs/heads/main/blood_cat/global.bc`
 
-PS: For your own anonymity, do not import or use untrusted BloodCat API endpoints, as they may collect your IP address (unless you are using a proxy).
+PS: For your own anonymity, do not import or use untrusted BloodCat Map API endpoints, as they may collect your IP address (unless you are using a proxy).
 
 ![alt text](./pic/image-6.png)
 
@@ -500,6 +500,7 @@ $ python3 bloodcat_map_lan.py
 
 
  
+
 
 
 
