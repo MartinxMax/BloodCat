@@ -63,9 +63,17 @@ PS: This tool supports weak‑credential and brute‑force testing against most 
 
 
 # Official Video
+ 
+
+<a href="https://www.youtube.com/watch?v=pEJLMjA7Mx8">
+  <img src="https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DpEJLMjA7Mx8" width="100%">
+</a>
+
+---
+
 
 <a href="https://www.youtube.com/watch?v=GuDtAhKAi5M">
-  <img src="https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DGuDtAhKAi5M" width="100%">
+  <img src="https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DGuDtAhKAi5M" width="32%">
 </a>
 
 <a href="https://www.youtube.com/watch?v=q4WR4QpiIwI">
@@ -514,6 +522,7 @@ $ python3 bloodcat_map_lan.py
 
 
  
+
 
 
 
