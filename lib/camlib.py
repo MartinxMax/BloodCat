@@ -9,6 +9,7 @@
 import re
 import os
 import sys
+import platform
 import time
 from datetime import datetime
 import random
@@ -468,6 +469,57 @@ class CamLib():
             if ver:
                 log.info(f"Results successfully appended to: [\033[33m{path_file}\033[0m]")
 
+
+    def ping_live(self, file_path):
+
+        def extract_ip(rtsp):
+            match = re.match(r'rtsp://.*?@([\d.]+):\d+/', rtsp)
+            return match.group(1) if match else None
+
+        def ping_ip(ip, timeout=1):
+            system = platform.system().lower()
+
+            if system == "windows":
+                cmd = ["ping", "-n", "1", "-w", str(timeout * 1000), ip]
+            else:
+                cmd = ["ping", "-c", "1", "-W", str(timeout), ip]
+
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+
+            return result.returncode == 0
+
+        log.info("Probing reachable cameras from bc file...")
+
+        data = self.get_LocalDB_data(file_path)
+
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        save_filename = f"live_{timestamp}.bc"
+
+        for info in data:
+            rtsp_url = info.get("rtsp")
+            if not rtsp_url:
+                continue
+
+            ip = extract_ip(rtsp_url)
+            if not ip:
+                continue
+
+            if ping_ip(ip, timeout=1):
+                log.success(f"[{ip}] Host is alive")
+
+                ip_data = self.show_location(ip)
+
+                self.save_info(rtsp_url, ip_data, save_filename, True)
+
+            else:
+                log.warning(f"[{ip}] No response")
+
+
+
     def hiv(self,ip:str,port=554,password=''):
         def extract_ip(rtsp):
             match = re.match(r'rtsp://.*?@([\d.]+):\d+/', rtsp)
@@ -716,6 +768,5 @@ Network Range: {data['network']}
                     "chmod +x ./exploitdb/searchsploit"
                 )
         return data
-
 
 
