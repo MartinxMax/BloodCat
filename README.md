@@ -81,11 +81,11 @@ Once you become aware of their existence, you may realize how close and real onl
 <table>
 <tr>
   <td><img src="./pic/map_0.png" width="100%"></td>
-  <td><img src="./pic/hik-image-4.png" width="100%"></td>
+  <td><img src="./pic/m5.gif" width="100%"></td>
 </tr>
 <tr>
   <td><img src="./pic/p-1.png" width="100%"></td>
-  <td><img src="./pic/hik-image.png" width="100%"></td>
+  <td><img src="./pic/sc.png" width="100%"></td>
 </tr>
 </table>
 
@@ -804,6 +804,7 @@ $ python3 bloodcat_map_lan.py
 
 
 ---
+
 
 
 
