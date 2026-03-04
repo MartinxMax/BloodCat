@@ -2,7 +2,7 @@
 
 
 
-💻 We are currently collecting reviews of Bloodcat as well as tutorial videos in various languages. You only need to provide relevant videos or operational content; our bot will automatically search, gather, and process them from Google, then organize them on the corresponding page.
+💻 We are currently collecting reviews of Bloodcat as well as tutorial videos in various languages. You only need to post relevant videos or operational content; our bot will automatically search, gather, and process them from Google, then organize them on the corresponding page.
 
 ```
            ___
@@ -822,6 +822,7 @@ $ python3 bloodcat_map_lan.py
 
 
 ---
+
 
 
 
