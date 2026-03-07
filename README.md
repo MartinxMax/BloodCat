@@ -82,10 +82,7 @@ Once you become aware of their existence, you may realize how close and real onl
     <td><img src="./pic/display/m3.gif" width="100%"></td>
     <td><img src="./pic/display/m4.gif" width="100%"></td>
   </tr>
-  <tr>
-    <td><img src="./pic/display/m5.gif" width="100%"></td>
-    <td><img src="./pic/display/sc.png" width="100%"></td>
-  </tr>
+ 
 </table>
 
 </table>
@@ -896,3 +893,4 @@ $ python3 bloodcat_map_lan.py
 ---
 
  
+
