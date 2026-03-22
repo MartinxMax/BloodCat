@@ -870,6 +870,10 @@ After successful authentication, you can control the camera direction using the 
 
 
 
+- [How to Scan and Test Private Network IP Camera Security](https://github.com/MartinxMax/BloodCat/tree/main/trick/1)
+
+
+
 - [Push Your Live Stream or Private Network Camera Feed to Bloodcat Map for Subscribers to Play](https://github.com/MartinxMax/BloodCat/tree/main/trick/0)
 
 
