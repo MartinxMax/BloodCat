@@ -114,6 +114,7 @@ Once you become aware of their existence, you may realize how close and real onl
 - [Install](#bloodcat-installation)
 - [Bloodcat Workflow](#bloodcat-workflow)
 - [Bloodcat](#bloodcat)
+- [Bloodcat Digger](#bloodcat-digger)
 - [Bloodcat PTZ](#bloodcat-ptz)
 - [Evil bat](#evil-bat)
 - [Shodan cat](#shodan-cat)
@@ -803,7 +804,43 @@ Download link : https://github.com/MartinxMax/BloodCat/releases/tag/play
 ---
 
 
+# Bloodcat Digger
 
+After successfully brute-forcing a single target with Bloodcat, multiple camera channels may exist on the target device.Use Digger to deeply discover and enumerate all available camera streams.
+
+
+![alt text](./pic/main/d1.png)
+
+```bash
+(bloodcat)$ python3 bloodcat_digger.py
+```
+
+![alt text](./pic/main/d2.png)
+
+
+```bash
+(bloodcat)$ python3 bloodcat_digger.py --rtsp rtsp://admin:xxxxx@172.16.17.103:554/Streaming/Channels/ --id 101
+```
+
+Scan starting from ID 101 (the default initial channel ID for most cameras):
+
+
+
+This tool uses a stable TCP connection to the target.(FFplay uses UDP by default, which is extremely unstable for camera streams)
+
+
+```bash
+$ ffplay -x 600 -y 300 -rtsp_transport tcp rtsp://admin:xxxxx@172.16.17.103:554/Streaming/Channels/<x>01
+```
+
+![alt text](./pic/main/d3.png)
+
+<p align="center">
+  <a href="#bloodcat-index">⬆ Back to Index</a>
+</p>
+
+
+---
 
 # Bloodcat PTZ 
 
